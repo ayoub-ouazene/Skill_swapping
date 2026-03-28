@@ -1,0 +1,17 @@
+# Web Framework
+fastapi
+uvicorn
+python-multipart
+
+# Database & Vectors
+sqlalchemy
+psycopg2-binary
+pgvector
+
+# AI Tools
+sentence-transformers
+groq
+google-genai
+
+# Environment Variables
+python-dotenv

@@ -1,0 +1,67 @@
+import uuid
+from sqlalchemy import Column, String, Float, Integer, ForeignKey
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
+from pgvector.sqlalchemy import Vector
+
+from app.database import Base
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    first_name = Column(String(100), nullable=False)
+    last_name = Column(String(100), nullable=False)
+    email = Column(String(255), unique=True, nullable=False)
+    credit = Column(Float, default=1.0)
+    rating = Column(Float, default=0.0)
+
+    # Relationships (makes it easy to query e.g. user.skills)
+    skills = relationship("Skill", back_populates="owner", cascade="all, delete-orphan")
+    external_certificates = relationship("ExternalCertificate", back_populates="owner", cascade="all, delete-orphan")
+
+class Skill(Base):
+    __tablename__ = "skills"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"))
+    skill_name = Column(String(255), nullable=False)
+    
+    # This is the magic AI column! 384 dimensions matches our free HuggingFace model.
+    embedding = Column(Vector(384))
+
+    # Relationships
+    owner = relationship("User", back_populates="skills")
+    certificates = relationship("ExternalCertificate", back_populates="skill", cascade="all, delete-orphan")
+
+class ExternalCertificate(Base):
+    __tablename__ = "external_certificates"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"))
+    skill_id = Column(UUID(as_uuid=True), ForeignKey("skills.id", ondelete="CASCADE"))
+    document_url = Column(String, nullable=True)
+
+    # Relationships
+    owner = relationship("User", back_populates="external_certificates")
+    skill = relationship("Skill", back_populates="certificates")
+
+class Session(Base):
+    __tablename__ = "sessions"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    teacher_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    student_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    skill_id = Column(UUID(as_uuid=True), ForeignKey("skills.id"))
+    status = Column(String(50), default="ONGOING")
+    duration_hours = Column(Float, nullable=True)
+    rating = Column(Integer, nullable=True)
+
+class InternalCertificate(Base):
+    __tablename__ = "internal_certificates"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    session_id = Column(UUID(as_uuid=True), ForeignKey("sessions.id", ondelete="CASCADE"))
+    student_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    teacher_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    duration_hours = Column(Float, nullable=False)
