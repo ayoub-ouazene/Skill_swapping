@@ -20,39 +20,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Fonction pour envoyer le message au Backend
     async function sendMessage() {
-        const message = chatInput.value.trim();
-        if (!message) return;
+    const message = chatInput.value.trim();
+    if (!message) return;
 
-        // 1. Afficher le message de l'utilisateur
-        appendMessage('user', message);
-        chatInput.value = '';
+    // 1. Display user message and clear input
+    appendMessage('user', message);
+    chatInput.value = '';
 
-        try {
-            // 2. Appel à l'endpoint Smart Matching (vu dans ta capture)
-            const response = await fetch('http://127.0.0.1:8000/matching/Search_skills', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ query: message }) 
-            });
+    try {
+        // 2. Call your FastAPI Smart Matching endpoint
+        // NOTE: Replace 'http://127.0.0.1:8000' with your Render URL if deployed!
+        const response = await fetch('http://127.0.0.1:8000/matching/Search_skills', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` // Ensure 'token' is defined in your scope
+            },
+            body: JSON.stringify({ user_query: message }) 
+        });
 
-            if (response.ok) {
-                const data = await response.json();
-                // 3. Afficher la réponse de l'IA
-                // On suppose que ton backend renvoie un champ "response" ou "answer"
-                appendMessage('agent', data.answer || data.response || "J'ai trouvé des correspondances pour vous !");
+        if (response.ok) {
+            const data = await response.json();
+
+            // 3. Always display the text message from the AI
+            appendMessage('agent', data.message);
+            
+            // 4. If the intent was MATCH_RESULTS, handle the teacher list
+            if (data.response_type === "MATCH_RESULTS" && data.data) {
+                console.log("Found teachers:", data.data);
                 
-                // Si le backend renvoie un mentor, on pourrait générer la carte ici
-            } else {
-                appendMessage('agent', "Désolé, je rencontre une petite difficulté technique.");
+                // You can call a function here to render cards for each teacher
+                data.data.forEach(teacher => {
+                    displayTeacherCard(teacher); 
+                });
             }
-        } catch (error) {
-            console.error("Erreur Chat:", error);
-            appendMessage('agent', "Le serveur ne répond pas.");
+            
+        } else {
+            const errorData = await response.json();
+            appendMessage('agent', `Error: ${errorData.detail || "Technical difficulty"}`);
         }
+    } catch (error) {
+        console.error("Chat Error:", error);
+        appendMessage('agent', "The server is unreachable. Check your connection or backend status.");
     }
+}
+
 
     // Événements
     sendBtn.addEventListener('click', sendMessage);
