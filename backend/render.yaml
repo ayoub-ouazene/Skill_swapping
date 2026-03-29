@@ -1,0 +1,23 @@
+# Render Blueprint: https://render.com/docs/blueprint-spec
+# Connect the repo, set secret env vars in the dashboard (or link to a secret store).
+
+services:
+  - type: web
+    name: skillswap-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_SENDER
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
