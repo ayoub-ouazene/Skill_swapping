@@ -4,6 +4,7 @@ from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.models import Session as LearningSession, Skill, User
+from app.services.user_handle import build_user_handle
 
 
 def build_user_context(db: Session, user: User) -> str:
@@ -34,6 +35,7 @@ def build_user_context(db: Session, user: User) -> str:
 
     lines = [
         "=== Current user (SkillSwap) — use this to personalize answers ===",
+        f"Public handle: @{build_user_handle(user)}",
         f"Name: {user.first_name} {user.last_name}",
         f"Email: {user.email}",
         f"Bio: {user.bio or '(not set)'}",

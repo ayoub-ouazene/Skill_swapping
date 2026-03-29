@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import Skill, User
 from app.schemas import SkillDetail, SkillListItem
+from app.services.user_handle import build_user_handle
 
 router = APIRouter(prefix="/skills", tags=["Skills"])
 
@@ -50,6 +51,7 @@ def list_skills(
             id=skill.id,
             skill_name=skill.skill_name,
             teacher_id=user.id,
+            teacher_handle=build_user_handle(user),
             teacher_first_name=user.first_name,
             teacher_last_name=user.last_name,
             teacher_rating=user.rating,
@@ -94,6 +96,7 @@ def get_skill(skill_id: uuid.UUID, db: Session = Depends(get_db)):
         id=skill.id,
         skill_name=skill.skill_name,
         teacher_id=user.id,
+        teacher_handle=build_user_handle(user),
         teacher_first_name=user.first_name,
         teacher_last_name=user.last_name,
         teacher_rating=user.rating,
