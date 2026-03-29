@@ -23,8 +23,8 @@ class ChatRequest(BaseModel):
 @router.post("/Search_skills")
 def smart_chatbot(request: ChatRequest, db: Session = Depends(get_db)):
     """
-       chat bot endpoint
-       Detects if the user wants to chat or find a skill, and responds accordingly.
+       the user search for skill by asking the chatbot , enter a prompt 
+       the chatbot Detects if the user wants to chat or find a skill, and responds accordingly.
        the chatbot will return list of matchin users
     """
     try:

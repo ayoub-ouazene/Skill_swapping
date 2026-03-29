@@ -32,7 +32,7 @@ class FinalizeSessionRequest(BaseModel):
 @router.post("/Complete_Course")
 def finalize_session_and_issue_pdf(request: FinalizeSessionRequest, db: DbSession = Depends(get_db)):
     """
-    STUDENT FLOW: Closes the session using the frontend-provided button,
+    STUDENT FLOW: end up the course using the frontend-provided button,
     enter the duration of the course , then the rating , as inputs to the backend 
     the backend generates a PDF certificate, and emails it to the teacher.
     """
@@ -107,7 +107,7 @@ async def claim_credits_via_upload(
     db: DbSession = Depends(get_db)
 ):
     """
-    TEACHER FLOW: click on get credit button ,  Uploads the PDF of internel certificate 
+    TEACHER FLOW: click on claim credit button ,  Uploads the PDF of internel certificate 
       AI extracts the UUID, calculates Supply/Demand 
     via Vector Search, applies the rating multiplier, and adds credits to the wallet.
     """

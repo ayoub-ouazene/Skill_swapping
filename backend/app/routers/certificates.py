@@ -24,6 +24,7 @@ async def analyze_and_store_external(
     db: Session = Depends(get_db)   # We inject the database session here
 ):
     """
+    adding skill to the user profile ( file)
     Full Pipeline: Upload -> Gemini Validation -> Vectorize Skill -> Save to DB
     """
     # 1. Verify User Exists
