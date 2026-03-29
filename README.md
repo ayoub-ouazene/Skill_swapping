@@ -6,7 +6,7 @@ SkillSwap is a comprehensive backend API built with **FastAPI** and **PostgreSQL
 
 ---
 
-<<<<<<< HEAD
+
 ## 📋 Table of Contents
 
 - [Features](#features)
@@ -772,6 +772,3 @@ For issues, questions, or contributions:
 
 ---
 
-**Last Updated**: March 29, 2026  
-**Version**: 1.0.0  
-**Status**: ✅ Production Ready
