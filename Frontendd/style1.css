@@ -1,0 +1,107 @@
+:root {
+    --primary: #446469;
+    --primary-light: #c6e9ee;
+    --secondary-bg: #f7dcde;
+    --background: #faf9f5;
+    --surface: #ffffff;
+    --text-main: #30332f;
+    --text-variant: #5d605b;
+    --radius-lg: 1rem;
+    --radius-xl: 3rem;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background-color: var(--background);
+    color: var(--text-main);
+    font-family: 'Be Vietnam Pro', sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+h1, h2, h3, .logo { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; }
+
+.container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+
+/* NAVBAR */
+.navbar {
+    position: fixed; top: 0; width: 100%; z-index: 1000;
+    padding: 1.25rem 0; transition: 0.3s;
+}
+.navbar.glass {
+    background: rgba(250, 249, 245, 0.8);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+.nav-flex { display: flex; justify-content: space-between; align-items: center; }
+.logo { font-size: 1.5rem; color: var(--primary); letter-spacing: -1px; }
+.nav-links a {
+    text-decoration: none; margin: 0 1rem; font-size: 0.9rem;
+    color: var(--text-variant); font-weight: 700;
+}
+.nav-links a.active { color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 5px; }
+
+/* BOUTONS */
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary), #38585d);
+    color: white; border: none; padding: 0.8rem 1.8rem;
+    border-radius: 50px; font-weight: 700; cursor: pointer; transition: 0.3s;
+}
+.btn-primary.lg { padding: 1.2rem 2.5rem; font-size: 1.1rem; }
+.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(68, 100, 105, 0.2); }
+
+.btn-secondary {
+    background: #e8e9e3; border: none; padding: 1.2rem 2.5rem;
+    border-radius: 50px; font-weight: 700; color: var(--text-variant); cursor: pointer;
+}
+
+/* HERO */
+.hero { display: flex; align-items: center; min-height: 90vh; padding-top: 80px; gap: 4rem; }
+.hero-content { flex: 1.2; }
+.hero h1 { font-size: 5rem; line-height: 0.9; color: var(--primary); margin-bottom: 1.5rem; }
+.hero h1 span { color: rgba(48, 51, 47, 0.3); }
+.badge {
+    background: var(--secondary-bg); color: #604d4f;
+    padding: 0.5rem 1rem; border-radius: 50px; font-size: 0.7rem;
+    font-weight: 800; display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 2rem;
+}
+
+.asymmetric {
+    border-top-left-radius: var(--radius-xl);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem; transition: 0.3s;
+}
+.teal-card { background: white; border-left: 8px solid var(--primary-light); }
+.pink-card { background: white; border-left: 8px solid var(--secondary-bg); }
+.dark-card { background: var(--primary); color: white; }
+
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; padding: 4rem 0; }
+
+/* BENTO GRID */
+.bento-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, 250px); gap: 1.5rem; margin-top: 3rem;
+}
+.bento-item { background: #eeeee9; border-radius: 1.5rem; padding: 2rem; display: flex; flex-direction: column; justify-content: space-between; }
+.bento-large { grid-column: span 2; grid-row: span 2; }
+.bento-wide { grid-column: span 2; flex-direction: row; align-items: center; background: #e8e9e3; }
+.dark-bg { background: var(--primary); color: white; }
+
+
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 0.8s ease-out;
+}
+.animate-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
+.cta-box {
+    background: var(--primary); color: white; border-radius: 2.5rem;
+    padding: 6rem; text-align: center; margin-bottom: 6rem;
+}
+.btn-white { background: white; color: var(--primary); border: none; padding: 1.2rem 2.5rem; border-radius: 50px; font-weight: 800; font-size: 1.1rem; cursor: pointer; margin-top: 2rem; }

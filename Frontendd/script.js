@@ -35,3 +35,34 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Animation au défilement (Fade-up)
+    const observerOptions = {
+        threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.animate-on-scroll').forEach(section => {
+        observer.observe(section);
+    });
+
+    // 2. Changement de style de la Navbar au scroll
+    const navbar = document.querySelector('.navbar');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            navbar.style.boxShadow = '0 10px 30px rgba(0,0,0,0.08)';
+            navbar.style.padding = '1rem 0';
+        } else {
+            navbar.style.boxShadow = 'none';
+            navbar.style.padding = '1.25rem 0';
+        }
+    });
+});
