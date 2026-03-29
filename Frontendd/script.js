@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Animation au défilement (Fade-up)
+   
     const observerOptions = {
         threshold: 0.1
     };
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
         observer.observe(section);
     });
 
-    // 2. Changement de style de la Navbar au scroll
+    
     const navbar = document.querySelector('.navbar');
     window.addEventListener('scroll', () => {
         if (window.scrollY > 50) {
@@ -65,4 +65,19 @@ document.addEventListener('DOMContentLoaded', () => {
             navbar.style.padding = '1.25rem 0';
         }
     });
+});
+
+document.querySelectorAll('.menu-item').forEach(item => {
+    item.addEventListener('click', function() {
+        document.querySelector('.menu-item.active').classList.remove('active');
+        this.classList.add('active');
+    });
+});
+
+document.querySelector('.btn-login').addEventListener('click', () => {
+    window.location.href = '#login';
+});
+
+document.querySelector('.btn-join').addEventListener('click', () => {
+    window.location.href = '#join';
 });
