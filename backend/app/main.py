@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from app.database import engine, Base
-from app.routers import certificates
+from app.routers import certificates , matching , economy
 
 # This line creates your tables in Neon if they don't exist yet
 # (Though we already created them via the SQL editor, this is good practice)
@@ -13,6 +13,9 @@ app = FastAPI(
 )
 
 app.include_router(certificates.router) 
+app.include_router(matching.router)
+app.include_router(economy.router)
+
 
 @app.get("/")
 def read_root():

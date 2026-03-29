@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, Float, Integer, ForeignKey
+from sqlalchemy import Column, String, Float, Integer, ForeignKey 
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from pgvector.sqlalchemy import Vector
@@ -65,3 +65,4 @@ class InternalCertificate(Base):
     student_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
     teacher_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
     duration_hours = Column(Float, nullable=False)
+    
