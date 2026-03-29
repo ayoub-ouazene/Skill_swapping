@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Connexion</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="signup-body"> <main class="login-container">
+        <header class="login-header">
+            <div class="back-arrow"><i class="fa-solid fa-arrow-left"></i></div>
+            <div class="profile-icon-wrapper">
+                <div class="main-circle">
+                    <i class="fa-solid fa-user"></i>
+                    <div class="lock-badge"><i class="fa-solid fa-lock"></i></div>
+                </div>
+            </div>
+            <h1>Welcome Back!</h1>
+        </header>
+
+        <form class="login-form">
+            <div class="input-field-wrapper">
+                <label>Email Address</label>
+                <div class="input-with-icon">
+                    <input type="email" placeholder="name@gmail.com" required>
+                    <i class="fa-regular fa-envelope"></i>
+                </div>
+            </div>
+
+            <div class="input-field-wrapper">
+                <div class="label-row">
+                    <label>Password</label>
+                </div>
+                <div class="input-with-icon">
+                    <input type="password" placeholder="........" required>
+                    <i class="fa-regular fa-eye-slash"></i>
+                </div>
+            </div>
+
+            <button type="submit" class="signin-btn">
+                Sign In <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </form>
+        <p class="login-redirect">
+           Dont have account? <a href="signup.html">Sign in</a>
+        </p>
+
+    </main>
+<script>
+    const loginForm = document.querySelector('.login-form');
+
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // Récupération des inputs (attention, vérifie bien que tes inputs ont ces types)
+        const email = document.querySelector('input[type="email"]').value;
+        const password = document.querySelector('input[type="password"]').value;
+
+        try {
+            // Appel à la route de login
+            const response = await fetch('http://127.0.0.1:8000/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                
+                localStorage.setItem('skillswap_token', data.access_token);
+                
+                alert("Connexion réussie !");
+                
+                window.location.href = 'home.html'; 
+            } else {
+                alert("Erreur : " + (data.detail || "Email ou mot de passe incorrect"));
+            }
+        } catch (error) {
+            console.error("Erreur :", error);
+            alert("Impossible de contacter le serveur.");
+        }
+    });
+</script> 
+</body>
+</html>

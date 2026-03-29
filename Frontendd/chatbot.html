@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learnest - AI Matchmaker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-page: radial-gradient(circle at center, #9bb5b6 0%, #728e90 100%);
+            --header-bg: #FFFFFF;
+            --chat-bg: #0b0e14;
+            --text-dark: #1A202C;
+            --text-gray: #718096;
+            --accent-teal: #62b6b7;
+            --user-msg-bg: #324446;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+        body {
+            background: var(--bg-page);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 40px;
+            background: #ffffff;
+            border-radius: 0 0 0 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+
+        .logo { font-size: 22px; font-weight: 700; color: #111; }
+
+        .center-nav { display: flex; gap: 30px; }
+        .center-nav a { text-decoration: none; color: #888; font-weight: 500; font-size: 14px; }
+
+        .right-nav { display: flex; align-items: center; gap: 15px; }
+        .time-wallet {
+            background: #f0f7f7;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #2b8b8b;
+        }
+
+        .icon-btn {
+            background: transparent;
+            border: none;
+            font-size: 18px;
+            color: #666;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .icon-btn:hover { color: #0d827c; }
+
+        .app-container { display: flex; width: 100%; flex: 1; overflow: hidden; }
+
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: var(--bg-page); }
+
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #a4c2c3 0%, #688a8c 100%);
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 2px 0 15px rgba(0,0,0,0.05);
+        }
+
+        .side-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 120px;
+            padding: 0 20px;
+        }
+
+        .nav-item {
+            text-decoration: none;
+            color: #4a6566;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: 0.3s;
+            font-size: 14px;
+        }
+
+        .nav-item.active {
+            background: #ffffff;
+            color: #2b8b8b;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            margin-right: -30px;
+            padding-right: 30px;
+            border-radius: 25px 0 0 25px;
+        }
+
+        .chat-section {
+            flex: 1;
+            padding: 30px 40px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-window {
+            background: var(--chat-bg);
+            border-radius: 25px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .chat-window::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: radial-gradient(circle at 20% 30%, rgba(0, 255, 255, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .chat-header {
+            background: #fff;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .agent-info { display: flex; align-items: center; gap: 12px; }
+        .agent-icon-circle { width: 35px; height: 35px; background: #222; border-radius: 50%; }
+        .agent-text strong { display: block; font-size: 14px; }
+        .agent-text span { font-size: 11px; color: #888; }
+
+        .chat-body {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .message { display: flex; gap: 12px; max-width: 85%; }
+        .agent-msg { align-self: flex-start; }
+        .user-msg { align-self: flex-end; flex-direction: row-reverse; }
+
+        .bubble {
+            padding: 15px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .agent-msg .bubble { background: #fff; color: #111; border-top-left-radius: 0; }
+        .user-msg .bubble { background: var(--user-msg-bg); color: #fff; border-top-right-radius: 0; }
+
+        .mentor-card {
+            background: #fdfaf5;
+            border-radius: 20px;
+            padding: 20px;
+            margin: 15px 0;
+            display: flex;
+            gap: 15px;
+            border: 1px solid #eee;
+        }
+
+        .badge-expert { background: #5fbde3; color: white; font-size: 10px; padding: 3px 8px; border-radius: 5px; font-weight: 700; }
+        
+        .tag { font-size: 11px; padding: 5px 12px; border-radius: 15px; font-weight: 600; margin-top: 10px; display: inline-block; }
+        .tag-blue { background: #d3f0f9; color: #2d7a91; }
+        .tag-pink { background: #fce7f3; color: #be185d; }
+
+        .chat-actions { display: flex; gap: 10px; margin-top: 15px; }
+        .btn { padding: 12px 20px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; font-size: 13px; }
+        .btn-teal { background: #b2e5e5; color: #1e4d4d; }
+
+        .input-area {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .input-box {
+            flex: 1;
+            background: #f0f0f0;
+            border-radius: 30px;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-box input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 12px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .send-circle {
+            background: #4a5d5e;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        const token = localStorage.getItem('skillswap_token');
+        if (!token) { window.location.href = 'login.html'; }
+    </script>
+
+    <header class="top-nav">
+        <div class="logo">Learnest</div>
+        <nav class="center-nav"></nav>
+        <div class="right-nav">
+            <div class="time-wallet"><i class="fas fa-wallet"></i> Time Wallet: 12.5h</div>
+            <button class="icon-btn"><i class="fas fa-bell"></i></button>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <main class="main-content">
+            <div class="chat-section">
+                <div class="chat-window">
+                    <div class="chat-header">
+                        <div class="agent-info">
+                            <div class="agent-icon-circle"></div>
+                            <div class="agent-text">
+                                <strong>Curated Matchmaking</strong>
+                                <span>Active Agent: Digital Atelier AI</span>
+                            </div>
+                        </div>
+                        <div style="cursor:pointer; color:#aaa">⋮</div>
+                    </div>
+
+                    <div class="chat-body" id="chatBody">
+                        <div class="message agent-msg">
+                            <div class="bubble">
+                                Hello! I've been analyzing your recent activity. To help you grow this week, what would you like to focus on?
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input-area">
+                        <div class="input-box">
+                            <input type="text" id="chatInput" placeholder="Type your request to the AI Matchmaker...">
+                            <span style="margin-left:10px; cursor:pointer"> 😊</span>
+                        </div>
+                        <div class="send-circle" id="sendBtn">➤</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <aside class="sidebar">
+            <nav class="side-nav">
+                <a href="profile.html" class="nav-item"><i class="fas fa-calendar-alt"></i> profil</a>
+                <a href="home.html" class="nav-item"><i class="fas fa-home"></i> Home</a>
+                <a href="chatbot.html" class="nav-item active"><i class="fas fa-bolt"></i> AI Match</a>
+                <a href="index.html" class="nav-item"><i class="fas fa-sign-out-alt"></i> Deconnexion</a>
+            </nav>
+        </aside>
+    </div>
+
+    <script src="chatbot.js"></script>
+</body>
+</html>

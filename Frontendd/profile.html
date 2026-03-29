@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learnest Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="profile.css">
+</head>
+<body>
+<script>
+
+</script>
+    <div class="app-container">
+        <aside class="sidebar">
+            <nav class="side-nav">
+                <a href="profile.html" class="nav-item active"><i class="fas fa-calendar-alt"></i>profil</a>
+                <a href="home.html" class="nav-item"><i class="fas fa-home"></i> Home</a>
+                <a href="chatbot.html" class="nav-item"><i class="fas fa-bolt"></i> AI Match</a>
+                <a href="index.html" class="nav-item"><i class="fas fa-sign-out-alt"></i> Deconnexion</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-nav">
+                <div class="logo">Learnest</div>
+                <nav class="center-nav"></nav>
+                <div class="right-nav">
+                    <div class="time-wallet"><i class="fas fa-wallet"></i> Time Wallet: 12.5h</div>
+                    <button class="icon-btn"><i class="fas fa-bell"></i></button>
+                    <div alt="User" class="avatar-small"></div> 
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="profile-hero">
+                    <div class="profile-info-wrap">
+                        <div class="avatar-large-container">
+                          
+                            
+                        </div>
+                        <div class="profile-text">
+                          <h1 id="userNameDisplay">Chargement...</h1>
+                            <div class="sessions-badge">
+                                <div class="icon-circle"><i class="fas fa-graduation-cap"></i></div>
+                                <div class="sessions-text">
+                                    <span>SESSIONS</span>
+                                    <strong>24</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="main-grid">
+                    <div class="left-col">
+                        <div class="card skills-card">
+                            <div class="card-header">
+                                <div class="icon-box mint"><i class="fas fa-pencil-ruler"></i></div>
+                                <h2>Skills I Teach</h2>
+                                   <div id="openSkillsModal" style="font-size:24px; color:#aaa; cursor:pointer">+</div>
+                            </div>
+                            <div class="skills-grid">
+                                <div class="skill-item">
+                                    <div class="skill-item-header">
+                                        <i class="fas fa-pen-nib"></i>
+                                        <span class="tag advanced">ADVANCED</span>
+                                    </div>
+                                    <h3>UI/UX Design</h3>
+                                    <p>Systematic design thinking, user research, and high-fidelity prototyping.</p>
+                                </div>
+                                <div class="skill-item">
+                                    <div class="skill-item-header">
+                                        <i class="fas fa-border-all"></i>
+                                        <span class="tag intermediate">INTERMEDIATE</span>
+                                    </div>
+                                    <h3>Figma</h3>
+                                    <p>Auto-layout mastery, component architecture, and advanced prototyping.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card skills-card">
+                            <div class="card-header">
+                                <div class="icon-box purple"><i class="fas fa-sparkles"></i></div>
+                                <h2>Skills I Want</h2>
+                                   <div style="font-size:24px; color:#aaa; cursor:pointer">+</div>
+                            </div>
+                            <div class="skills-list">
+                                <div class="skill-row">
+                                    <div class="skill-icon-wrap"><i class="fas fa-film"></i></div>
+                                    <div class="skill-row-text">
+                                        <h3>Motion Design</h3>
+                                        <p>Interested in After Effects or Principle</p>
+                                    </div>
+                                    <span class="tag high-priority">HIGH PRIORITY</span>
+                                </div>
+                                <div class="skill-row">
+                                    <div class="skill-icon-wrap"><i class="fas fa-code"></i></div>
+                                    <div class="skill-row-text">
+                                        <h3>React Native</h3>
+                                        <p>Mobile app development basics</p>
+                                    </div>
+                                    <span class="tag learning">LEARNING</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="right-col">
+                        <div class="card about-card">
+                            <h2>About Me</h2>
+                            <p>I'm Soujoud, a passionate UI designer from Algiers. I believe the best way to grow is to share what we know. Always looking for new creative sparks!</p>
+                            <div class="tags-wrap">
+                                <span class="pill-tag">CREATIVE</span>
+                                <span class="pill-tag">TECH</span>
+                                <span class="pill-tag">ALGIERS</span>
+                            </div>
+                        </div>
+
+       <div class="card credits-card">
+        <h2>Add credit</h2>
+        <p>please upload certificat.</p>
+
+       <div class="upload-container">
+        <label for="file-upload" class="custom-upload-btn">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <span>Choose a file...</span>
+        </label>
+        <input id="file-upload" type="file" hidden>
+        <div id="file-name" class="file-name-display">No file selected</div>
+        </div>
+
+        <div class="balance-row">
+        <span>AVAILABLE BALANCE</span>
+        <strong>12.5 Hours</strong>
+       </div> 
+       </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+<div class="modal-overlay" id="skillsModal">
+    <div class="modal-box skill-upload-box">
+        <button class="close-btn" id="closeSkillsBtn">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <div class="modal-header">
+            <div class="icon-circle-large"><i class="fas fa-certificate"></i></div>
+            <h2>Verify your Skill</h2>
+            <p>Please upload your diploma to prove your skills and start teaching.</p>
+        </div>
+
+        <div class="upload-container">
+            <label for="skill-file-upload" class="custom-upload-btn">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span>Select Diploma (PDF, JPG)</span>
+            </label>
+            <input id="skill-file-upload" type="file" hidden>
+            <div id="skill-file-name" class="file-name-display">No file selected</div>
+        </div>
+
+        <button class="continue-btn" id="submitSkillBtn">
+            Submit for Verification
+        </button>
+    </div>
+</div>
+
+
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>
