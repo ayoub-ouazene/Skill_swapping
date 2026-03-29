@@ -6,7 +6,10 @@ from app.routers import auth, certificates, chat, matching, sessions, skills, us
 
 # This line creates your tables in Neon if they don't exist yet
 # (Though we already created them via the SQL editor, this is good practice)
-Base.metadata.create_all(bind=engine)
+
+
+# Base.metadata.create_all(bind=engine)
+
 
 app = FastAPI(
     title="SkillSwap AI Backend",
