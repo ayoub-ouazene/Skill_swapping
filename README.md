@@ -96,7 +96,7 @@ SkillSwap is a comprehensive backend API built with **FastAPI** and **PostgreSQL
 ### Email Service
 | Component | Technology | Purpose |
 |-----------|-----------|---------|
-| **Email Delivery** | Resend | Transactional email API |
+| **Email Delivery** | SMTP | Transactional email API |
 
 ### Utilities
 | Component | Technology | Purpose |
@@ -133,12 +133,9 @@ Before you begin, ensure you have the following installed and configured:
    - Create a new API key
    - Used for LLaMA-based chatbot and vision analysis
 
-4. **Email Service (Resend)**
-   - Visit: [resend.com](https://resend.com/)
-   - Create an account
-   - Obtain your API key (optional if not using email features)
 
-5. **Gmail App Password** (Optional - for email notifications)
+
+4. **Gmail App Password** (Optional - for email notifications)
    - Configure via Google Account settings
    - Generate app-specific password for EMAIL_PASSWORD
 
@@ -223,7 +220,6 @@ python -c "import fastapi; import sqlalchemy; import sentence_transformers; prin
 | `JWT_SECRET_KEY` | `my-super-secret-key` | ❌ Optional | JWT signing key (auto-generated if missing) |
 | `EMAIL_SENDER` | `your-email@gmail.com` | ❌ Optional | Sender email address for notifications |
 | `EMAIL_PASSWORD` | `app-password-xyz` | ❌ Optional | App password for email service |
-| `RESEND_API_KEY` | `re_xxxxx_xxxxx` | ❌ Optional | Resend email service API key |
 
 ---
 
