@@ -1,4 +1,5 @@
 import os
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,14 +8,19 @@ from fastapi.staticfiles import StaticFiles
 from app.database import engine, Base
 from app.routers import auth, certificates, chat, credit, matching, peer_messages, sessions, skills, users
 
-# This line creates your tables in Neon if they don't exist yet
-# (Though we already created them via the SQL editor, this is good practice)
-Base.metadata.create_all(bind=engine)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # After uvicorn binds to PORT (so host probes succeed), create tables if needed.
+    Base.metadata.create_all(bind=engine)
+    yield
+
 
 app = FastAPI(
     title="SkillSwap AI Backend",
     description="Backend of the Project",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
