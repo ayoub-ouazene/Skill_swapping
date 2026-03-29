@@ -18,3 +18,5 @@ python-dotenv
 
 resend
 fpdf2
+pdfplumber
+pymupdf

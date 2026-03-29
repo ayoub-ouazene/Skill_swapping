@@ -2,23 +2,72 @@ import os
 import uuid
 import shutil
 import json
+import re
+import base64
+import pdfplumber
+import fitz  # PyMuPDF for converting PDF to image
+from groq import Groq
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session as DbSession
 from sqlalchemy import func
-from google import genai
+from dotenv import load_dotenv
 
 from app.database import get_db
 from app.models import Session, User, InternalCertificate, Skill
 from app.services.rewards import generate_certificate_pdf, send_certificate_email
 
-# Initialize Gemini for reading the uploaded PDF certificates
-ai_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+# Load environment variables
+load_dotenv()
+groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 router = APIRouter(
     prefix="/economy",
     tags=["Time Wallet & Certificates"]
 )
+
+# =====================================================================
+# HELPER FUNCTIONS
+# =====================================================================
+
+def pdf_to_base64_image(pdf_path: str) -> str:
+    """Takes the first page of a PDF and converts it to a base64 PNG string."""
+    doc = fitz.open(pdf_path)
+    page = doc.load_page(0)  # Grab the first page
+    pix = page.get_pixmap(dpi=150) # Render to image at 150 DPI
+    img_bytes = pix.tobytes("png")
+    doc.close()
+    return base64.b64encode(img_bytes).decode('utf-8')
+
+def groq_fallback_uuid_extraction(base64_image: str) -> str:
+    """Sends the image to Groq Vision to find the UUID."""
+    prompt = """
+    Read this certificate document. Find the 'Secure Certificate ID' at the bottom.
+    It will look like a standard UUID (e.g., 123e4567-e89b-12d3-a456-426614174000).
+    Return ONLY the UUID string, nothing else. Do not add quotes or markdown.
+    If you cannot find it, return 'ERROR'.
+    """
+    try:
+        response = groq_client.chat.completions.create(
+            model="meta-llama/llama-4-scout-17b-16e-instruct",
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": f"data:image/png;base64,{base64_image}"},
+                        },
+                    ],
+                }
+            ],
+            temperature=0,
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        print(f"Groq Fallback Error: {e}")
+        return "ERROR"
 
 # =====================================================================
 # 1. STUDENT ACTION: FINALIZE SESSION & ISSUE REWARD PDF
@@ -31,11 +80,7 @@ class FinalizeSessionRequest(BaseModel):
 
 @router.post("/Complete_Course")
 def finalize_session_and_issue_pdf(request: FinalizeSessionRequest, db: DbSession = Depends(get_db)):
-    """
-    STUDENT FLOW: end up the course using the frontend-provided button,
-    enter the duration of the course , then the rating , as inputs to the backend 
-    the backend generates a PDF certificate, and emails it to the teacher.
-    """
+    # ... (Keep your exact existing code for Complete_Course here) ...
     try:
         learning_session = db.query(Session).filter(Session.id == request.session_id).first()
         if not learning_session or learning_session.status == "COMPLETED":
@@ -47,17 +92,14 @@ def finalize_session_and_issue_pdf(request: FinalizeSessionRequest, db: DbSessio
         
         actual_duration = request.duration_hours
 
-        # 1. Deduct from Student
         if student.credit < actual_duration:
             raise HTTPException(status_code=400, detail="Student does not have enough Time Credits!")
         student.credit -= actual_duration
 
-        # 2. Update Session Record
         learning_session.status = "COMPLETED"
-        learning_session.rating = request.student_rating   #add rating to the course
+        learning_session.rating = request.student_rating
         learning_session.duration_hours = actual_duration 
 
-        # 3. Save the Certificate Record to DB
         new_certificate = InternalCertificate(
             session_id=learning_session.id,
             student_id=student.id,
@@ -67,7 +109,6 @@ def finalize_session_and_issue_pdf(request: FinalizeSessionRequest, db: DbSessio
         db.add(new_certificate)
         db.commit()
 
-        # 4. Generate the Physical PDF Document
         pdf_path = generate_certificate_pdf(
             teacher_name=f"{teacher.first_name} {teacher.last_name}",
             student_name=f"{student.first_name} {student.last_name}",
@@ -76,17 +117,12 @@ def finalize_session_and_issue_pdf(request: FinalizeSessionRequest, db: DbSessio
             cert_id=str(new_certificate.id) 
         )
 
-        # 5. Email it to the teacher
         send_certificate_email(teacher.email, pdf_path)
 
-        # 6. Cleanup the temp PDF from the server
         if os.path.exists(pdf_path):
             os.remove(pdf_path)
 
-        return {
-            "success": True, 
-            "message": f"Session closed for {actual_duration} hours. PDF Certificate emailed to teacher."
-        }
+        return {"success": True, "message": f"Session closed. PDF Certificate emailed."}
 
     except Exception as e:
         db.rollback()
@@ -106,35 +142,42 @@ async def claim_credits_via_upload(
     file: UploadFile = File(...),
     db: DbSession = Depends(get_db)
 ):
-    """
-    TEACHER FLOW: click on claim credit button ,  Uploads the PDF of internel certificate 
-      AI extracts the UUID, calculates Supply/Demand 
-    via Vector Search, applies the rating multiplier, and adds credits to the wallet.
-    """
     if file.content_type != "application/pdf":
         raise HTTPException(status_code=400, detail="Must be a PDF file.")
 
     temp_file_path = os.path.join(TEMP_DIR, file.filename)
+    extracted_uuid = None
+    extraction_method = None
 
     try:
-        # 1. Save uploaded PDF temporarily
         with open(temp_file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        # 2. Use Gemini Vision to read the PDF and extract the "Secure Certificate ID"
-        uploaded_file = ai_client.files.upload(file=temp_file_path)
-        prompt = """
-        Read this certificate document. Find the 'Secure Certificate ID' at the bottom.
-        Return ONLY the UUID string, nothing else. If you cannot find it, return 'ERROR'.
-        """
-        ai_response = ai_client.models.generate_content(
-            model='gemini-1.5-flash',
-            contents=[uploaded_file, prompt]
-        )
-        extracted_uuid = ai_response.text.strip()
+        # --- ATTEMPT 1: Local PDF Parsing (Fast & Free) ---
+        extracted_text = ""
+        with pdfplumber.open(temp_file_path) as pdf:
+            for page in pdf.pages:
+                extracted_text += page.extract_text() or ""
 
-        if extracted_uuid == "ERROR":
-            raise HTTPException(status_code=400, detail="Could not read a valid Certificate ID from this document.")
+        uuid_pattern = r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
+        matches = re.findall(uuid_pattern, extracted_text.lower())
+
+        if matches:
+            extracted_uuid = matches[0]
+            extraction_method = "local_pdf_parser"
+        
+        # --- ATTEMPT 2: Groq Vision Fallback (For flattened/scanned PDFs) ---
+        else:
+            print("pdfplumber failed. Trying Groq AI fallback...")
+            base64_img = pdf_to_base64_image(temp_file_path)
+            groq_result = groq_fallback_uuid_extraction(base64_img)
+            
+            # Double check that Groq actually returned a valid UUID format
+            if groq_result != "ERROR" and re.match(uuid_pattern, groq_result.lower()):
+                extracted_uuid = groq_result.lower()
+                extraction_method = "groq_vision_ai"
+            else:
+                raise HTTPException(status_code=400, detail="Could not read a valid Certificate ID from this document, even with AI fallback.")
 
         # 3. Verify the Certificate in the Database
         certificate = db.query(InternalCertificate).filter(InternalCertificate.id == extracted_uuid).first()
@@ -144,7 +187,6 @@ async def claim_credits_via_upload(
         if certificate.teacher_id != teacher_id:
             raise HTTPException(status_code=403, detail="This certificate does not belong to you.")
         
-        # 4. Fetch the Session FIRST so we can check its status
         learning_session = db.query(Session).filter(Session.id == certificate.session_id).first()
         
         if learning_session.status == "CLAIMED":
@@ -156,32 +198,26 @@ async def claim_credits_via_upload(
         target_vector = taught_skill.embedding
 
         # --- THE ON-THE-FLY ECONOMIC CALCULATION ---
-        
-        # OFFER: How many teachers offer similar skills? (Cosine distance < 0.3)
         similar_skills_count = db.query(Skill).filter(
             Skill.embedding.cosine_distance(target_vector) < 0.3
         ).count()
         offer_score = max(similar_skills_count, 1)
 
-        # DEMAND: How many completed sessions used similar skills?
         demand_score = db.query(Session).join(Skill, Session.skill_id == Skill.id).filter(
             Skill.embedding.cosine_distance(target_vector) < 0.3,
             Session.status == "COMPLETED"
         ).count()
 
-        # Multipliers
         raw_multiplier = demand_score / offer_score
-        market_multiplier = max(0.5, min(2.0, float(raw_multiplier))) # Clamp between 0.5x and 2.0x
+        market_multiplier = max(0.5, min(2.0, float(raw_multiplier))) 
         rating_multiplier = learning_session.rating / 5.0
 
-        # Math
         final_credits_earned = certificate.duration_hours * market_multiplier * rating_multiplier
 
         # --- APPLY UPDATES ---
         teacher.credit += final_credits_earned
         learning_session.status = "CLAIMED"
 
-        # Update Teacher Rating Average
         if teacher.rating == 0.0:
             teacher.rating = float(learning_session.rating)
         else:
@@ -193,6 +229,7 @@ async def claim_credits_via_upload(
             "success": True,
             "message": "Certificate validated and market-adjusted credits deposited!",
             "receipt": {
+                "extracted_via": extraction_method,
                 "base_hours": certificate.duration_hours,
                 "market_demand_score": demand_score,
                 "market_offer_score": offer_score,
@@ -203,11 +240,12 @@ async def claim_credits_via_upload(
             }
         }
 
+    except HTTPException:
+        raise
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
 
     finally:
-        # Cleanup temp file
         if os.path.exists(temp_file_path):
             os.remove(temp_file_path)

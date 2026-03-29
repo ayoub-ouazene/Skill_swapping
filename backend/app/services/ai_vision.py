@@ -1,18 +1,24 @@
 import os
 import json
-from google import genai
+import base64
+from groq import Groq
 from dotenv import load_dotenv
 
 # Load the API key from your .env file
 load_dotenv()
-api_key = os.getenv("GEMINI_API_KEY")
+api_key = os.getenv("GROQ_API_KEY")
 
-# Initialize the new standard Gemini Client
-client = genai.Client(api_key=api_key)
+# Initialize the Groq Client
+client = Groq(api_key=api_key)
+
+# Function to encode the image to base64
+def encode_image(image_path):
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode('utf-8')
 
 def analyze_external_certificate(image_file_path: str) -> dict:
     """
-    Takes a path to an uploaded image file, sends it to Gemini, 
+    Takes a path to an uploaded image file, sends it to Groq Vision, 
     and returns a structured dictionary with the extracted data.
     """
     
@@ -31,17 +37,32 @@ def analyze_external_certificate(image_file_path: str) -> dict:
     """
 
     try:
-        # 1. Upload the file to Gemini's temporary storage securely (New Syntax)
-        sample_file = client.files.upload(file=image_file_path)
+        # 1. Convert the image to a base64 string
+        base64_image = encode_image(image_file_path)
         
-        # 2. Generate the response (New Syntax)
-        response = client.models.generate_content(
-            model='gemini-1.5-flash',
-            contents=[sample_file, prompt]
+        # 2. Generate the response using Llama 3.2 Vision Preview
+        response = client.chat.completions.create(
+            model="meta-llama/llama-4-scout-17b-16e-instruct",
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                # Note: Assuming jpeg/png. Base64 handles the raw bytes nicely.
+                                "url": f"data:image/jpeg;base64,{base64_image}",
+                            },
+                        },
+                    ],
+                }
+            ],
+            temperature=0, # Set to 0 to make the JSON output as consistent as possible
         )
         
         # 3. Clean up the response and convert it from a string to a Python dictionary
-        raw_json_string = response.text.strip()
+        raw_json_string = response.choices[0].message.content.strip()
         
         # Remove markdown if the AI accidentally adds it
         if raw_json_string.startswith("```json"):
@@ -51,12 +72,9 @@ def analyze_external_certificate(image_file_path: str) -> dict:
             
         extracted_data = json.loads(raw_json_string)
         
-        # 4. Delete the file from Google's servers after we are done
-        client.files.delete(name=sample_file.name)
-        
         return extracted_data
         
     except Exception as e:
-        print(f"AI Vision Error: {e}")
+        print(f"AI Vision Error (Groq): {e}")
         # Fail gracefully
         return {"status": "INVALID", "student_name": None, "skill_name": None}
