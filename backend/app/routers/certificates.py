@@ -17,7 +17,7 @@ router = APIRouter(
 TEMP_DIR = "temp_uploads"
 os.makedirs(TEMP_DIR, exist_ok=True)
 
-@router.post("/analyze-external")
+@router.post("/skills/add")
 async def analyze_and_store_external(
     user_id: uuid.UUID = Form(...), # We get the user ID from the form data
     file: UploadFile = File(...),

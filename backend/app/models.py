@@ -15,6 +15,7 @@ class User(Base):
     email = Column(String(255), unique=True, nullable=False)
     credit = Column(Float, default=1.0)
     rating = Column(Float, default=0.0)
+    hashed_password = Column(String, nullable=False)
 
     # Relationships (makes it easy to query e.g. user.skills)
     skills = relationship("Skill", back_populates="owner", cascade="all, delete-orphan")

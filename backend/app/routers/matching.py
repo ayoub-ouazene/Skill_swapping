@@ -20,7 +20,7 @@ router = APIRouter(
 class ChatRequest(BaseModel):
     user_query: str
 
-@router.post("/chat")
+@router.post("/Search_skills")
 def smart_chatbot(request: ChatRequest, db: Session = Depends(get_db)):
     """
        chat bot endpoint

@@ -29,7 +29,7 @@ class FinalizeSessionRequest(BaseModel):
     student_rating: int = Field(..., ge=1, le=5, description="Rating from 1 to 5")
     duration_hours: float = Field(..., gt=0, description="Actual time spent in hours")
 
-@router.post("/finalize-session")
+@router.post("/Complete_Course")
 def finalize_session_and_issue_pdf(request: FinalizeSessionRequest, db: DbSession = Depends(get_db)):
     """
     STUDENT FLOW: Closes the session using the frontend-provided button,
@@ -100,7 +100,7 @@ def finalize_session_and_issue_pdf(request: FinalizeSessionRequest, db: DbSessio
 TEMP_DIR = "temp_uploads"
 os.makedirs(TEMP_DIR, exist_ok=True)
 
-@router.post("/upload-internal-certificate")
+@router.post("/Claim_Credit")
 async def claim_credits_via_upload(
     teacher_id: uuid.UUID = Form(...),
     file: UploadFile = File(...),
