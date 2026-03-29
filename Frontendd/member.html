@@ -134,9 +134,10 @@
         </main>
     </div>
 
+    <script src="api-config.js"></script>
     <script>
 (function () {
-    var API = 'http://127.0.0.1:8000';
+    var API = typeof window.SKILLSWAP_API_BASE === 'string' ? window.SKILLSWAP_API_BASE : 'http://127.0.0.1:8000';
     var params = new URLSearchParams(window.location.search);
     var id = params.get('id');
     var handle = (params.get('handle') || '').replace(/^@/, '').trim();

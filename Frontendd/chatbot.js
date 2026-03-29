@@ -1,8 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('skillswap_token');
     const API =
-        (typeof window !== 'undefined' && window.SKILLSWAP_API_BASE) ||
-        'http://127.0.0.1:8000';
+        typeof window !== 'undefined' && typeof window.SKILLSWAP_API_BASE === 'string'
+            ? window.SKILLSWAP_API_BASE
+            : 'http://127.0.0.1:8000';
     const HISTORY_KEY = 'skillswap_ai_match_history';
     const MAX_STORED_TURNS = 40;
 

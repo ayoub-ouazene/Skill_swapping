@@ -46,6 +46,7 @@
         </p>
 
     </main>
+<script src="api-config.js"></script>
 <script>
     const signupForm = document.querySelector('.signup-form');
 
@@ -69,7 +70,8 @@
         const fullName = `${firstName} ${lastName}`;
 
         try {
-    const response = await fetch('http://127.0.0.1:8000/auth/register', { 
+    const apiBase = typeof window.SKILLSWAP_API_BASE === 'string' ? window.SKILLSWAP_API_BASE : 'http://127.0.0.1:8000';
+    const response = await fetch(apiBase + '/auth/register', { 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

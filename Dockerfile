@@ -34,8 +34,10 @@ ENV PATH="/opt/venv/bin:$PATH"
 ENV PYTHONPATH=/app/backend
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
+ENV FRONTEND_STATIC_DIR=/app/Frontendd
 
 COPY --chown=appuser:appuser backend /app/backend
+COPY --chown=appuser:appuser Frontendd /app/Frontendd
 
 USER appuser
 

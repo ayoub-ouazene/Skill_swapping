@@ -1,5 +1,8 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.database import engine, Base
 from app.routers import auth, certificates, chat, credit, matching, peer_messages, sessions, skills, users
@@ -39,11 +42,6 @@ app.include_router(matching.router)
 app.include_router(credit.router)
 
 
-@app.get("/")
-def read_root():
-    return {"message": "Welcome to the SkillSwap API. The server is alive!"}
-
-
 @app.get("/health", tags=["Health"])
 def health_check():
     return {
@@ -51,3 +49,16 @@ def health_check():
         "version": "1.0.0",
         "message": "SkillSwap API is running smoothly."
     }
+
+
+# Frontend (HTML/JS/CSS) — mount last so /docs, /openapi.json, and API routes stay reachable
+_frontend_dir = os.environ.get(
+    "FRONTEND_STATIC_DIR",
+    os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..", "Frontendd")),
+)
+if os.path.isdir(_frontend_dir):
+    app.mount("/", StaticFiles(directory=_frontend_dir, html=True), name="frontend")
+else:
+    @app.get("/")
+    def read_root():
+        return {"message": "Welcome to the SkillSwap API. The server is alive!"}

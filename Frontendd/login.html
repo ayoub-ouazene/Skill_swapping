@@ -48,6 +48,7 @@
         </p>
 
     </main>
+<script src="api-config.js"></script>
 <script>
     const loginForm = document.querySelector('.login-form');
 
@@ -60,7 +61,8 @@
 
         try {
             // Appel à la route de login
-            const response = await fetch('http://127.0.0.1:8000/auth/login', {
+            const apiBase = typeof window.SKILLSWAP_API_BASE === 'string' ? window.SKILLSWAP_API_BASE : 'http://127.0.0.1:8000';
+            const response = await fetch(apiBase + '/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

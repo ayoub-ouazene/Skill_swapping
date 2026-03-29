@@ -1,6 +1,9 @@
-// UNE SEULE DÉCLARATION ICI
+// UNE SEULE DÉCLARATION ICI — include api-config.js before this script, or set window.SKILLSWAP_API_BASE
 const token = localStorage.getItem('skillswap_token');
-const API_BASE = 'http://127.0.0.1:8000';
+const API_BASE =
+    typeof window !== 'undefined' && typeof window.SKILLSWAP_API_BASE === 'string'
+        ? window.SKILLSWAP_API_BASE
+        : 'http://127.0.0.1:8000';
 
 /** FastAPI erreurs : detail string | liste de {msg,loc} | objet */
 function formatApiDetail(payload) {

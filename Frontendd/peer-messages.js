@@ -1,4 +1,7 @@
-const API = "http://127.0.0.1:8000";
+const API =
+    typeof window !== "undefined" && typeof window.SKILLSWAP_API_BASE === "string"
+        ? window.SKILLSWAP_API_BASE
+        : "http://127.0.0.1:8000";
 const TOKEN_KEY = "skillswap_token";
 
 let myUserId = null;
