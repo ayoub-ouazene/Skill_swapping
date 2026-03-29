@@ -1,4 +1,5 @@
 import uuid
+from typing import Optional
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -11,6 +12,7 @@ from app.models import User
 # HTTPBearer (not OAuth2 password flow) so Swagger "Authorize" accepts a pasted JWT.
 # Our /auth/login uses JSON { email, password }; OAuth2's username/password form does not match that.
 security = HTTPBearer()
+optional_bearer = HTTPBearer(auto_error=False)
 
 
 def get_current_user(
@@ -36,3 +38,22 @@ def get_current_user(
     if user is None:
         raise credentials_exception
     return user
+
+
+def get_optional_user(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(optional_bearer),
+    db: Session = Depends(get_db),
+) -> Optional[User]:
+    if credentials is None:
+        return None
+    payload = decode_access_token(credentials.credentials)
+    if payload is None:
+        return None
+    sub = payload.get("sub")
+    if sub is None:
+        return None
+    try:
+        user_id = uuid.UUID(str(sub))
+    except (ValueError, TypeError):
+        return None
+    return db.query(User).filter(User.id == user_id).first()

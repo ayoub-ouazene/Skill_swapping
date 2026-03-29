@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, Float, Integer, ForeignKey, Text, DateTime, func
+from sqlalchemy import Column, String, Float, Integer, ForeignKey, Text, DateTime, func, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from pgvector.sqlalchemy import Vector
@@ -20,10 +20,26 @@ class User(Base):
 
     # Relationships (makes it easy to query e.g. user.skills)
     skills = relationship("Skill", back_populates="owner", cascade="all, delete-orphan")
+    desired_skills = relationship(
+        "DesiredSkill", back_populates="owner", cascade="all, delete-orphan"
+    )
     external_certificates = relationship("ExternalCertificate", back_populates="owner", cascade="all, delete-orphan")
     chat_conversations = relationship(
         "ChatConversation", back_populates="owner", cascade="all, delete-orphan"
     )
+
+class DesiredSkill(Base):
+    """Skills the user wants to learn (profile « Skills I want »)."""
+
+    __tablename__ = "desired_skills"
+    __table_args__ = (UniqueConstraint("user_id", "skill_name", name="uq_desired_skills_user_name"),)
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    skill_name = Column(String(255), nullable=False)
+
+    owner = relationship("User", back_populates="desired_skills")
+
 
 class Skill(Base):
     __tablename__ = "skills"
@@ -104,3 +120,31 @@ class ChatMessage(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     conversation = relationship("ChatConversation", back_populates="messages")
+
+
+class PeerThread(Base):
+    """1:1 message thread between two users (pair is unique, IDs stored ordered)."""
+
+    __tablename__ = "peer_threads"
+    __table_args__ = (
+        UniqueConstraint("user_a_id", "user_b_id", name="uq_peer_threads_pair"),
+    )
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_a_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user_b_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    skill_id = Column(UUID(as_uuid=True), ForeignKey("skills.id", ondelete="SET NULL"), nullable=True)
+    last_message_at = Column(DateTime(timezone=True), nullable=True)
+    last_message_preview = Column(String(300), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+
+class PeerMessage(Base):
+    __tablename__ = "peer_messages"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    thread_id = Column(UUID(as_uuid=True), ForeignKey("peer_threads.id", ondelete="CASCADE"), nullable=False)
+    sender_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    content = Column(Text, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

@@ -60,8 +60,8 @@ def login(body: UserLogin, db: Session = Depends(get_db)):
     If the credentials are correct, it returns a JWT access token that the 
     frontend must include in the Authorization header for future requests.
     """
-    # 1. Normalize the email to match how it is stored in the database
-    normalized_email = body.email.lower()
+    # 1. Email already normalized in UserLogin validator
+    normalized_email = body.email
     
     # 2. Fetch the user from the database
     user = db.query(User).filter(User.email == normalized_email).first()
