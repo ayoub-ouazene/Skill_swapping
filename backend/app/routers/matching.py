@@ -85,10 +85,16 @@ def smart_chatbot(request: ChatRequest, db: Session = Depends(get_db)):
             if not query_vector:
                 raise HTTPException(status_code=500, detail="Embedding generation failed.")
 
+
+            distance_threshold = 0.5
             # Search Neon Database for the Top 5 matches
-            closest_skills = db.query(Skill).order_by(
-                Skill.embedding.cosine_distance(query_vector)
-            ).limit(5).all()
+            closest_skills = (
+                db.query(Skill)
+                .filter(Skill.embedding.cosine_distance(query_vector) < distance_threshold)
+                .order_by(Skill.embedding.cosine_distance(query_vector))
+                .limit(5)
+                .all()
+            )
 
             if not closest_skills:
                 return {
@@ -107,7 +113,6 @@ def smart_chatbot(request: ChatRequest, db: Session = Depends(get_db)):
                     "last_name": teacher.last_name,
                     "email": teacher.email,
                     "rating": teacher.rating,
-                    "credit_balance": teacher.credit,
                     "matched_skill": skill.skill_name,
                     # We can even add a "match_score" later if you want to calculate the raw distance!
                 })

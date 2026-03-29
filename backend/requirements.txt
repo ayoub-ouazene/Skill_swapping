@@ -3,6 +3,7 @@ fastapi
 uvicorn
 python-multipart
 email-validator
+pydantic
 
 # Database & Vectors
 sqlalchemy

@@ -28,6 +28,7 @@ async def analyze_and_store_external(
 ):
     """
     adding new skill by uploading certificate 
+    the certificates should clearly mention the skill name 
     Full Pipeline: Upload -> Gemini Validation -> Vectorize Skill -> Save to DB
     """
     # 1. Verify User Exists

@@ -1,5 +1,6 @@
 import os
 import resend
+import smtplib
 from email.message import EmailMessage
 from fpdf import FPDF
 from dotenv import load_dotenv
@@ -72,52 +73,55 @@ def generate_certificate_pdf(teacher_name: str, student_name: str, skill_name: s
     
     return file_path
 
+
+
 def send_certificate_email(teacher_email: str, pdf_path: str):
     """
-    Emails the generated PDF to the teacher using Resend.
+    Emails the generated PDF to the teacher using completely free Gmail SMTP.
     """
-    # Check if Resend is configured
-    if not resend.api_key:
-        print("⚠️ Dev Mode: RESEND_API_KEY not set. Skipping email.")
-        return
-
     sender_email = os.getenv("EMAIL_SENDER")
-    if not sender_email:
-        print("⚠️ Dev Mode: EMAIL_SENDER not set. Skipping email.")
+    sender_password = os.getenv("EMAIL_PASSWORD")
+
+    if not sender_email or not sender_password:
+        print("⚠️ Dev Mode: GMAIL_SENDER or GMAIL_PASSWORD not set. Skipping email.")
         return
 
-    # Read PDF file as bytes
-    with open(pdf_path, 'rb') as f:
-        pdf_bytes = f.read()
+    # 1. Create the email message container
+    msg = EmailMessage()
+    msg['Subject'] = "Your SkillSwap Teaching Certificate is here!"
+    msg['From'] = f"SkillSwap Team <{sender_email}>"
+    msg['To'] = teacher_email
+    
+    # 2. Add the email body text
+    msg.set_content(
+        "Congratulations! Attached is your official teaching certificate.\n\n"
+        "You can upload this to the platform whenever you are ready to claim "
+        "your Time Credits based on current market demand.\n\n"
+        "Best regards,\nSkillSwap Team"
+    )
 
-    # Prepare email content
-    subject = "Your SkillSwap Teaching Certificate is here!"
-    html_content = """
-    <html>
-        <body>
-            <p>Congratulations! Attached is your official teaching certificate.</p>
-            <p>You can upload this to the platform whenever you are ready to claim your Time Credits based on current market demand.</p>
-            <p>Best regards,<br>SkillSwap Team</p>
-        </body>
-    </html>
-    """
-    plain_text = "Congratulations! Attached is your official teaching certificate. You can upload this to the platform whenever you are ready to claim your Time Credits based on current market demand."
-
+    # 3. Read and attach the PDF
     try:
-        # Send via Resend
-        response = resend.Emails.send({
-            "from": sender_email,
-            "to": teacher_email,
-            "subject": subject,
-            "html": html_content,
-            "text": plain_text,
-            "attachments": [
-                {
-                    "filename": "SkillSwap_Certificate.pdf",
-                    "content": pdf_bytes,  # bytes, Resend will base64 encode
-                }
-            ]
-        })
-        print(f"✅ Email sent successfully! Resend ID: {response['id']}")
+        with open(pdf_path, 'rb') as f:
+            pdf_bytes = f.read()
+            
+        msg.add_attachment(
+            pdf_bytes, 
+            maintype='application', 
+            subtype='pdf', 
+            filename='SkillSwap_Certificate.pdf'
+        )
     except Exception as e:
-        print(f"❌ Failed to send email: {e}")
+        print(f"❌ Failed to read PDF attachment: {e}")
+        return
+
+    # 4. Log into Gmail and send!
+    try:
+        # Connect to Gmail's secure SMTP server
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+            smtp.login(sender_email, sender_password)
+            smtp.send_message(msg)
+            
+        print(f"✅ Email sent successfully to {teacher_email} via Gmail!")
+    except Exception as e:
+        print(f"❌ Failed to send email via Gmail: {e}")
