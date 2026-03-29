@@ -9,6 +9,7 @@ from app.database import get_db
 from app.models import Skill, User
 from app.services.ai_embeddings import generate_embedding
 
+
 # Initialize Groq Client
 groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
@@ -19,6 +20,10 @@ router = APIRouter(
 
 class ChatRequest(BaseModel):
     user_query: str
+
+
+
+# searching for specific skill by asking the chatbot 
 
 @router.post("/Search_skills")
 def smart_chatbot(request: ChatRequest, db: Session = Depends(get_db)):
@@ -116,3 +121,7 @@ def smart_chatbot(request: ChatRequest, db: Session = Depends(get_db)):
     except Exception as e:
         print(f"Chatbot Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+    
+
+
+

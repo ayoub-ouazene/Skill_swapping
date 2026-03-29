@@ -94,3 +94,12 @@ class SessionDetail(BaseModel):
     status: str
     duration_hours: Optional[float]
     rating: Optional[int]
+
+
+
+
+# for booking / enrolling with specific teacher 
+
+class EnrollRequest(BaseModel):
+    teacher_id: uuid.UUID
+    skill_id: uuid.UUID

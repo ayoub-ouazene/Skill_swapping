@@ -63,6 +63,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+docs 
+scripts 
+
 # IDEs
 .vscode/
 .idea/

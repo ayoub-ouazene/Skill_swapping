@@ -17,6 +17,9 @@ router = APIRouter(
 TEMP_DIR = "temp_uploads"
 os.makedirs(TEMP_DIR, exist_ok=True)
 
+
+# adding new skill by uploading certificate 
+
 @router.post("/skills/add")
 async def analyze_and_store_external(
     user_id: uuid.UUID = Form(...), # We get the user ID from the form data
@@ -24,7 +27,7 @@ async def analyze_and_store_external(
     db: Session = Depends(get_db)   # We inject the database session here
 ):
     """
-    adding skill to the user profile ( file)
+    adding new skill by uploading certificate 
     Full Pipeline: Upload -> Gemini Validation -> Vectorize Skill -> Save to DB
     """
     # 1. Verify User Exists

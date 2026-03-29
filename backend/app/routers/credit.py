@@ -70,7 +70,7 @@ def groq_fallback_uuid_extraction(base64_image: str) -> str:
         return "ERROR"
 
 # =====================================================================
-# 1. STUDENT ACTION: FINALIZE SESSION & ISSUE REWARD PDF
+# 1. STUDENT ACTION: END UP A SESSION and Rate the teacher
 # =====================================================================
 
 class FinalizeSessionRequest(BaseModel):
