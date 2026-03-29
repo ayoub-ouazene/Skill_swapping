@@ -2,6 +2,7 @@
 fastapi
 uvicorn
 python-multipart
+email-validator
 
 # Database & Vectors
 sqlalchemy
@@ -15,6 +16,10 @@ google-genai
 
 # Environment Variables
 python-dotenv
+
+# Auth (bcrypt directly — passlib breaks on bcrypt 4.1+)
+bcrypt>=4.0
+python-jose[cryptography]
 
 resend
 fpdf2
