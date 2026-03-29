@@ -21,11 +21,12 @@
             <p>Login to access your expert dashboard and personalized insights.</p>
         </header>
 
-        <form class="login-form">
+        <form class="login-form" id="login-form">
+            <p id="login-error" class="form-error-msg" hidden></p>
             <div class="input-field-wrapper">
                 <label>Email Address</label>
                 <div class="input-with-icon">
-                    <input type="email" placeholder="name@gmail.com" required>
+                    <input id="login-email" type="email" name="email" placeholder="name@gmail.com" autocomplete="email" required>
                     <i class="fa-regular fa-envelope"></i>
                 </div>
             </div>
@@ -35,7 +36,7 @@
                     <label>Password</label>
                 </div>
                 <div class="input-with-icon">
-                    <input type="password" placeholder="........" required>
+                    <input id="login-password" type="password" name="password" placeholder="........" autocomplete="current-password" required>
                     <i class="fa-regular fa-eye-slash"></i>
                 </div>
             </div>
@@ -45,10 +46,12 @@
             </button>
         </form>
         <p class="login-redirect">
-           Dont have account? <a href="signup.html">Sign in</a>
+           Don't have an account? <a href="signup.html">Sign up</a>
         </p>
 
     </main>
 
+    <script src="api-config.js"></script>
+    <script src="auth-login.js"></script>
 </body>
 </html>

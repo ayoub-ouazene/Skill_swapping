@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, Float, Integer, ForeignKey 
+from sqlalchemy import Column, String, Float, Integer, ForeignKey, Text, DateTime, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from pgvector.sqlalchemy import Vector
@@ -13,13 +13,17 @@ class User(Base):
     first_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)
     email = Column(String(255), unique=True, nullable=False)
-    credit = Column(Float, default=1.0)
+    bio = Column(String(2000), nullable=True)
+    credit = Column(Float, default=2.0)
     rating = Column(Float, default=0.0)
     hashed_password = Column(String, nullable=False)
 
     # Relationships (makes it easy to query e.g. user.skills)
     skills = relationship("Skill", back_populates="owner", cascade="all, delete-orphan")
     external_certificates = relationship("ExternalCertificate", back_populates="owner", cascade="all, delete-orphan")
+    chat_conversations = relationship(
+        "ChatConversation", back_populates="owner", cascade="all, delete-orphan"
+    )
 
 class Skill(Base):
     __tablename__ = "skills"
@@ -66,4 +70,37 @@ class InternalCertificate(Base):
     student_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
     teacher_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
     duration_hours = Column(Float, nullable=False)
-    
+
+
+class ChatConversation(Base):
+    __tablename__ = "chat_conversations"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    title = Column(String(200), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    owner = relationship("User", back_populates="chat_conversations")
+    messages = relationship(
+        "ChatMessage",
+        back_populates="conversation",
+        cascade="all, delete-orphan",
+        order_by="ChatMessage.created_at",
+    )
+
+
+class ChatMessage(Base):
+    __tablename__ = "chat_messages"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    conversation_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("chat_conversations.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    role = Column(String(20), nullable=False)  # "user" | "assistant"
+    content = Column(Text, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    conversation = relationship("ChatConversation", back_populates="messages")

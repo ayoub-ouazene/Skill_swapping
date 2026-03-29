@@ -613,3 +613,10 @@ body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color
     color: #94a3b8; 
     margin-top: 10px; 
 }
+
+.form-error-msg {
+    color: #c0392b;
+    font-size: 0.875rem;
+    margin: 0 0 1rem;
+    line-height: 1.4;
+}

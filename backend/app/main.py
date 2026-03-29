@@ -1,6 +1,8 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 from app.database import engine, Base
-from app.routers import certificates , matching , economy
+from app.routers import auth, certificates, chat, economy, matching, sessions, skills, users
 
 # This line creates your tables in Neon if they don't exist yet
 # (Though we already created them via the SQL editor, this is good practice)
@@ -12,7 +14,25 @@ app = FastAPI(
     version="1.0.0"
 )
 
-app.include_router(certificates.router) 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://127.0.0.1:5500",
+        "http://localhost:5500",
+        "http://127.0.0.1:5501",
+        "http://localhost:5501",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(auth.router)
+app.include_router(users.router)
+app.include_router(skills.router)
+app.include_router(sessions.router)
+app.include_router(chat.router)
+app.include_router(certificates.router)
 app.include_router(matching.router)
 app.include_router(economy.router)
 
