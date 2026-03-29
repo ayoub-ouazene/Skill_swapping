@@ -15,3 +15,6 @@ google-genai
 
 # Environment Variables
 python-dotenv
+
+resend
+fpdf2
