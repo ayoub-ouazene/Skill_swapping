@@ -41,3 +41,12 @@ app.include_router(credit.router)
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the SkillSwap API. The server is alive!"}
+
+
+@app.get("/health", tags=["Health"])
+def health_check():
+    return {
+        "status": "online", 
+        "version": "1.0.0",
+        "message": "SkillSwap API is running smoothly."
+    }
