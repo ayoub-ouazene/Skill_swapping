@@ -1,10 +1,11 @@
 import os
 import shutil
 import uuid
-from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
+from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.deps import get_current_user
 from app.models import Skill, ExternalCertificate, User
 from app.services.ai_vision import analyze_external_certificate
 from app.services.ai_embeddings import generate_embedding
@@ -22,28 +23,27 @@ os.makedirs(TEMP_DIR, exist_ok=True)
 
 @router.post("/skills/add")
 async def analyze_and_store_external(
-    user_id: uuid.UUID = Form(...), # We get the user ID from the form data
     file: UploadFile = File(...),
-    db: Session = Depends(get_db)   # We inject the database session here
+    db: Session = Depends(get_db),
+    current: User = Depends(get_current_user),
 ):
     """
     adding new skill by uploading certificate 
     the certificates should clearly mention the skill name 
     Full Pipeline: Upload -> Gemini Validation -> Vectorize Skill -> Save to DB
     """
-    # 1. Verify User Exists
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found in database.")
+    user_id = current.id
 
-    # 2. File Setup
+    # 1. File Setup
     allowed_types = ["image/jpeg", "image/png", "image/webp", "application/pdf"]
     if file.content_type not in allowed_types:
         raise HTTPException(status_code=400, detail="Invalid file type.")
 
-    temp_file_path = os.path.join(TEMP_DIR, file.filename)
+    temp_file_path = None
+    safe_name = file.filename or "upload.bin"
 
     try:
+        temp_file_path = os.path.join(TEMP_DIR, f"{uuid.uuid4()}_{safe_name}")
         # Save file temporarily
         with open(temp_file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
@@ -100,6 +100,8 @@ async def analyze_and_store_external(
         raise HTTPException(status_code=500, detail=str(e))
 
     finally:
-        # Cleanup temp file
-        if os.path.exists(temp_file_path):
-            os.remove(temp_file_path)
+        if temp_file_path and os.path.exists(temp_file_path):
+            try:
+                os.remove(temp_file_path)
+            except OSError:
+                pass
