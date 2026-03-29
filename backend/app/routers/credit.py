@@ -7,13 +7,14 @@ import base64
 import pdfplumber
 import fitz  # PyMuPDF for converting PDF to image
 from groq import Groq
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session as DbSession
 from sqlalchemy import func
 from dotenv import load_dotenv
 
 from app.database import get_db
+from app.deps import get_current_user
 from app.models import Session, User, InternalCertificate, Skill
 from app.services.rewards import generate_certificate_pdf, send_certificate_email
 
@@ -79,12 +80,18 @@ class FinalizeSessionRequest(BaseModel):
     duration_hours: float = Field(..., gt=0, description="Actual time spent in hours")
 
 @router.post("/Complete_Course")
-def finalize_session_and_issue_pdf(request: FinalizeSessionRequest, db: DbSession = Depends(get_db)):
-    # ... (Keep your exact existing code for Complete_Course here) ...
+def finalize_session_and_issue_pdf(
+    request: FinalizeSessionRequest,
+    db: DbSession = Depends(get_db),
+    current: User = Depends(get_current_user),
+):
     try:
         learning_session = db.query(Session).filter(Session.id == request.session_id).first()
-        if not learning_session or learning_session.status == "COMPLETED":
+        if not learning_session or learning_session.status in ("COMPLETED", "CLAIMED"):
             raise HTTPException(status_code=400, detail="Session not found or already closed.")
+
+        if learning_session.student_id != current.id:
+            raise HTTPException(status_code=403, detail="Only the student can finalize this session.")
 
         student = db.query(User).filter(User.id == learning_session.student_id).first()
         teacher = db.query(User).filter(User.id == learning_session.teacher_id).first()
@@ -124,6 +131,9 @@ def finalize_session_and_issue_pdf(request: FinalizeSessionRequest, db: DbSessio
 
         return {"success": True, "message": f"Session closed. PDF Certificate emailed."}
 
+    except HTTPException:
+        db.rollback()
+        raise
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
@@ -138,10 +148,11 @@ os.makedirs(TEMP_DIR, exist_ok=True)
 
 @router.post("/Claim_Credit")
 async def claim_credits_via_upload(
-    teacher_id: uuid.UUID = Form(...),
     file: UploadFile = File(...),
-    db: DbSession = Depends(get_db)
+    db: DbSession = Depends(get_db),
+    current: User = Depends(get_current_user),
 ):
+    teacher_id = current.id
     if file.content_type != "application/pdf":
         raise HTTPException(status_code=400, detail="Must be a PDF file.")
 

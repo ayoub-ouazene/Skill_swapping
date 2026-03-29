@@ -1,4 +1,4 @@
-# SkillSwap Backend 🚀
+# SkillSwap 🚀
 
 **A peer-to-peer skill exchange platform powered by AI, Time Credits economy, and smart skill matching.**
 
