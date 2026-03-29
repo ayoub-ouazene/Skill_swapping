@@ -226,6 +226,15 @@
         </div>
     </div>
 
+    <script src="api-config.js"></script>
+    <script>
+      (function () {
+        var key = window.SKILLSWAP_TOKEN_KEY || "skillswap_access_token";
+        if (!localStorage.getItem(key)) {
+          window.location.replace("login.html");
+        }
+      })();
+    </script>
     <script src="script.js"></script>
     
 </body>
