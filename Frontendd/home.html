@@ -3,35 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkillSwap DZ - Home & Matches</title>
+    <title>Home & Matches</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-
-    <header class="navbar">
-        <div class="logo">Learnest</div>
-        <div class="top-badges">
-            <div class="badge-credits"><i class="fa-solid fa-coins"></i> 5.5 Credits</div>
-            <div class="badge-verified"><i class="fa-regular fa-circle-check"></i> Verified</div>
-            <div class="avatar-mini"><i class="fa-solid fa-user"></i></div>
-        </div>
-    </header>
-
-    <div class="main-wrapper">
+    <div class="app-container">
         <aside class="sidebar">
-            <div class="sidebar-content">
-                <ul class="side-menu">
-                    <li class="active-item"><a href="#"><i class="fa-solid fa-house-chimney"></i> Home</a></li>
-                    <li><a href="#"><i class="fa-regular fa-calendar"></i> Sessions</a></li>
-                    <li><a href="#"><i class="fa-regular fa-message"></i> Messages</a></li>
-                    <li><a href="#"><i class="fa-solid fa-bolt"></i> AI Match</a></li>
-                </ul>
-            </div>
+            <nav class="side-nav">
+                <a href="profile.html" class="nav-item"><i class="fas fa-calendar-alt"></i>profil</a>
+                <a href="home.html" class="nav-item active"><i class="fas fa-home"></i> Home</a>
+                <a href="messages.html" class="nav-item"><i class="fas fa-envelope"></i> Messages</a>
+                <a href="chatbot.html" class="nav-item"><i class="fas fa-bolt"></i> AI Match</a>
+            </nav>
         </aside>
 
         <main class="main-content gradient-bg">
+            <header class="top-nav">
+                <div class="logo">Learnest</div>
+                <nav class="center-nav"></nav>
+                <div class="right-nav">
+                    <div class="time-wallet"><i class="fas fa-wallet"></i> Time Wallet: 12.5h</div>
+                    <button class="icon-btn"><i class="fas fa-bell"></i></button>
+                    <img src="https://i.pravatar.cc/150?img=5" alt="User" class="avatar-small">
+                </div>
+            </header>
+
             <div class="container container-large">
                 
                 <div class="hero-section">
@@ -175,12 +173,12 @@
             </div>
 
             <div class="floating-btn-round">
-                <i class="fa-solid fa-bolt"></i>
+               <a href="chatbot.html"> <i class="fa-solid fa-bolt"></i></a>
             </div>
         </main>
     </div>
 
-    //popup 
+    
     <div class="modal-overlay" id="swapModal">
         <div class="modal-box">
             
@@ -226,7 +224,43 @@
         </div>
     </div>
 
-    <script src="api-config.js"></script>
+
+    <div class="overlay" id="successPopup">
+    <div class="popup-content">
+        <div class="success-icon-wrapper">
+            <div class="success-icon">
+                <i class="fa-solid fa-check"></i>
+            </div>
+        </div>
+
+        <h1 class="popup-title">Request Sent!</h1>
+        <p class="popup-subtitle">We've notified Lucas of your request. You'll get a notification once they accept.</p>
+
+        <div class="swap-card">
+            <div class="card-header">
+                <img src="yasmine.jpg" alt="Yasmine" class="card-avatar">
+                <div class="card-info">
+                    <span class="card-tag">SWAP WITH</span>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="card-icons">
+                    <span class="mini-icon">code</span>
+                    <span class="mini-icon">pen</span>
+                </div>
+                <span class="status-badge">Pending Approval</span>
+            </div>
+        </div>
+
+        <div class="popup-actions">
+            <button class="btn-main">Back to Explore</button>
+            <a href="message.html"><button class="btn-outline">Send a message</button></a>
+        </div>
+    </div>
+</div>
+
+
+        <script src="api-config.js"></script>
     <script>
       (function () {
         var key = window.SKILLSWAP_TOKEN_KEY || "skillswap_access_token";
