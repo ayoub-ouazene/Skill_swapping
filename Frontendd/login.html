@@ -28,7 +28,9 @@
             <div class="input-field-wrapper">
                 <label for="email">Email Address</label>
                 <div class="input-with-icon">
-                    <input type="email" id="email" placeholder="name@gmail.com" required>
+
+                    <input id="login-email" type="text" inputmode="email" autocomplete="username" placeholder="name@gmail.com ou alice.demo@skillswap.test" required>
+
                     <i class="fa-regular fa-envelope"></i>
                 </div>
             </div>
@@ -38,8 +40,10 @@
                     <label for="password">Password</label>
                 </div>
                 <div class="input-with-icon">
-                    <input type="password" id="password" placeholder="........" required>
-                    <i class="fa-regular fa-eye-slash" id="togglePassword" style="cursor: pointer;"></i>
+
+                    <input id="login-password" type="password" autocomplete="current-password" placeholder="........" required>
+                    <i class="fa-regular fa-eye-slash"></i>
+
                 </div>
             </div>
 
@@ -74,9 +78,11 @@
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // Safe retrieval using IDs
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
+
+        // Récupération des inputs (attention, vérifie bien que tes inputs ont ces types)
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+
 
         try {
             // Call the login endpoint
@@ -91,7 +97,10 @@
                 })
             });
 
-            const data = await response.json();
+            let data = {};
+            try {
+                data = await response.json();
+            } catch (_) {}
 
             if (response.ok) {
                 // Save the token EXACTLY as expected by the chatbot page
@@ -101,7 +110,13 @@
                 // Redirect to the main app dashboard
                 window.location.href = 'home.html'; 
             } else {
-                alert("Erreur : " + (data.detail || "Email ou mot de passe incorrect"));
+                let msg = "Email ou mot de passe incorrect";
+                if (Array.isArray(data.detail)) {
+                    msg = data.detail.map(function (d) { return d.msg || JSON.stringify(d); }).join(" ");
+                } else if (typeof data.detail === "string") {
+                    msg = data.detail;
+                }
+                alert("Erreur : " + msg);
             }
         } catch (error) {
             console.error("Erreur :", error);

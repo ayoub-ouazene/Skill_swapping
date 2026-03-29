@@ -502,3 +502,269 @@ body {
     background: none; border: none;
     font-size: 20px; cursor: pointer; color: #aaa;
 }
+
+.profile-handle-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+}
+
+.copy-handle-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    color: #475569;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+    pointer-events: auto;
+}
+
+.copy-handle-btn:hover {
+    background: #e2e8f0;
+    border-color: #cbd5e1;
+}
+
+.want-skill-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 16px;
+    font-size: 15px;
+    font-family: inherit;
+}
+
+.want-remove-btn {
+    min-width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 10px;
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 10px;
+}
+
+.want-remove-btn:hover {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.about-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.about-card-header h2 {
+    margin: 0;
+}
+
+.edit-about-btn {
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #f8fafc;
+    color: #64748b;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.edit-about-btn:hover {
+    background: #e6f2f2;
+    border-color: #0d827c;
+    color: #0d827c;
+}
+
+.about-edit-box {
+    text-align: left;
+}
+
+.about-edit-box .modal-header h2 {
+    margin-bottom: 8px;
+}
+
+.about-bio-textarea {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 160px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    font-size: 15px;
+    font-family: inherit;
+    line-height: 1.5;
+    resize: vertical;
+}
+
+.about-bio-textarea:focus {
+    outline: none;
+    border-color: #0d827c;
+    box-shadow: 0 0 0 3px rgba(13, 130, 124, 0.15);
+}
+
+.about-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+}
+
+.about-btn-secondary {
+    padding: 10px 20px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    color: #475569;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.about-btn-secondary:hover {
+    background: #f8fafc;
+}
+
+.about-btn-save {
+    margin: 0;
+}
+
+.sessions-subhead {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #64748b;
+    margin: 14px 0 8px 0;
+}
+
+.sessions-subhead:first-of-type {
+    margin-top: 0;
+}
+
+.sessions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sessions-empty {
+    padding: 10px 4px;
+    color: #64748b;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.session-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 14px;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+.session-row-past {
+    background: #fff;
+}
+
+.session-row-main {
+    flex: 1;
+    min-width: 140px;
+}
+
+.session-row-main strong {
+    display: block;
+    color: #0f172a;
+    font-size: 0.95rem;
+}
+
+.session-role {
+    display: block;
+    font-size: 0.82rem;
+    color: #64748b;
+    margin-top: 4px;
+}
+
+.session-status-tag {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #0d827c;
+    background: rgba(13, 130, 124, 0.12);
+    padding: 4px 10px;
+    border-radius: 8px;
+}
+
+.session-action-btn {
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 10px;
+    background: #0d827c;
+    color: #fff;
+}
+
+.session-action-btn:hover {
+    background: #0a6d67;
+}
+
+.complete-session-box .complete-field-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #475569;
+    margin: 12px 0 6px 0;
+}
+
+.complete-session-box .want-skill-input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.credits-card-desc {
+    color: #64748b;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    margin-bottom: 14px;
+}
+
+.claim-credits-btn {
+    width: 100%;
+    margin-top: 12px;
+}
+
+.claim-credits-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

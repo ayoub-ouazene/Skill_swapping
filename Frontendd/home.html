@@ -9,11 +9,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
+    <script src="auth-guard.js"></script>
     <div class="app-container">
         <aside class="sidebar">
             <nav class="side-nav">
                 <a href="profile.html" class="nav-item"><i class="fas fa-calendar-alt"></i>profil</a>
                 <a href="home.html" class="nav-item active"><i class="fas fa-home"></i> Home</a>
+                <a href="messages.html" class="nav-item"><i class="fas fa-comments"></i> Messages</a>
                 <a href="chatbot.html" class="nav-item"><i class="fas fa-bolt"></i> AI Match</a>
                 <a href="index.html" class="nav-item"><i class="fas fa-sign-out-alt"></i> Deconnexion</a>
             </nav>
@@ -24,7 +26,7 @@
                 <div class="logo">Learnest</div>
                 <nav class="center-nav"></nav>
                 <div class="right-nav">
-                    <div class="time-wallet"><i class="fas fa-wallet"></i> Time Wallet: 12.5h</div>
+                    <div class="time-wallet"><i class="fas fa-wallet"></i> Time Wallet: …</div>
                     <button class="icon-btn"><i class="fas fa-bell"></i></button>
                     <div src="https://i.pravatar.cc/150?img=5" alt="User" class="avatar-small"></div>
                 </div>
@@ -33,134 +35,10 @@
             <div class="container container-large">
                 <div class="hero-section">
                     <h1>Your Wisdom<br><span class="text-highlight">Finds Its Pair.</span></h1>
-                    <p class="subtitle">Welcome back, Soujoud. Based on your profile (UI Design & Algiers Arabic), we've found mentors looking for your skills who can teach you the French and Python you're after.</p>
+                    <p class="subtitle" id="home-hero-subtitle">Chargement des membres et de votre profil…</p>
                 </div>
 
-                <div class="mentors-grid">
-                    <div class="mentor-card">
-                        <div class="card-header">
-                            <div class="mentor-info">
-                                <h3>Imen <span class="badge-perfect">PERFECT MATCH!</span></h3>
-                                <span class="match-score">98% Match Score <i class="fa-solid fa-arrow-trend-up"></i></span>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <h4>CAN TEACH YOU</h4>
-                            <div class="tags-group">
-                                <span class="tag-teach">Python Core</span>
-                                <span class="tag-teach">Data Viz</span>
-                            </div>
-                            <h4>WANTS FROM YOU</h4>
-                            <div class="tags-group">
-                                <span class="tag-want">UI Design</span>
-                            </div>
-                        </div>
-                        <button class="btn-action primary-action btn-open-modal">Propose Session</button>
-                    </div>
-
-                    <div class="mentor-card">
-                        <div class="card-header">
-                            <div class="mentor-info">
-                                <h3>Karim</h3>
-                                <span class="match-score">82% Match Score</span>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <h4>CAN TEACH YOU</h4>
-                            <div class="tags-group">
-                                <span class="tag-teach">French (C2)</span>
-                                <span class="tag-teach">UI DESIGN</span>
-                            </div>
-                            <h4>WANTS FROM YOU</h4>
-                            <div class="tags-group">
-                                <span class="tag-want">Prototyping</span>
-                                <span class="tag-want">Arabic Dialect</span>
-                            </div>
-                        </div>
-                        <button class="btn-action secondary-action">View Profile</button>
-                    </div>
-
-                    <div class="mentor-card">
-                        <div class="card-header">
-                            <div class="mentor-info">
-                                <h3>Yasmine <span class="badge-perfect">PERFECT MATCH!</span></h3>
-                                <span class="match-score">95% Match Score <i class="fa-solid fa-arrow-trend-up"></i></span>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <h4>CAN TEACH YOU</h4>
-                            <div class="tags-group">
-                                <span class="tag-teach">Algorithmics</span>
-                                <span class="tag-teach">Logic</span>
-                            </div>
-                            <h4>WANTS FROM YOU</h4>
-                            <div class="tags-group">
-                                <span class="tag-want">UI Design</span>
-                            </div>
-                        </div>
-                        <button class="btn-action primary-action btn-open-modal">Propose Session</button>
-                    </div>
-
-                    <div class="mentor-card">
-                        <div class="card-header">
-                            <div class="mentor-info">
-                                <h3>Amine L.</h3>
-                                <span class="match-score">82% Match Score</span>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <h4>CAN TEACH YOU</h4>
-                            <div class="tags-group">
-                                <span class="tag-teach">French (C2)</span>
-                            </div>
-                            <h4>WANTS FROM YOU</h4>
-                            <div class="tags-group">
-                                <span class="tag-want">Prototyping</span>
-                            </div>
-                        </div>
-                        <button class="btn-action secondary-action">View Profile</button>
-                    </div>
-
-                    <div class="mentor-card">
-                        <div class="card-header">
-                            <div class="mentor-info">
-                                <h3>Sarah <span class="badge-perfect">PERFECT MATCH!</span></h3>
-                                <span class="match-score">98% Match Score</span>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <h4>CAN TEACH YOU</h4>
-                            <div class="tags-group">
-                                <span class="tag-teach">Python Core</span>
-                            </div>
-                            <h4>WANTS FROM YOU</h4>
-                            <div class="tags-group">
-                                <span class="tag-want">UI Design</span>
-                            </div>
-                        </div>
-                        <button class="btn-action primary-action btn-open-modal">Propose Session</button>
-                    </div>
-
-                    <div class="mentor-card">
-                        <div class="card-header">
-                            <div class="mentor-info">
-                                <h3>Amira <span class="badge-perfect">PERFECT MATCH!</span></h3>
-                                <span class="match-score">95% Match Score</span>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <h4>CAN TEACH YOU</h4>
-                            <div class="tags-group">
-                                <span class="tag-teach">Algorithmics</span>
-                            </div>
-                            <h4>WANTS FROM YOU</h4>
-                            <div class="tags-group">
-                                <span class="tag-want">UI Design</span>
-                            </div>
-                        </div>
-                        <button class="btn-action primary-action btn-open-modal">Propose Session</button>
-                    </div>
-                </div>
+                <div class="mentors-grid" id="home-mentors-grid"></div>
             </div>
 
             <div class="floating-btn-round">
@@ -238,5 +116,90 @@
     </div>
 
     <script src="script.js"></script>
+    <script>
+    (function () {
+        var API = 'http://127.0.0.1:8000';
+        var TOKEN_KEY = 'skillswap_token';
+        function escapeHtml(t) {
+            var d = document.createElement('div');
+            d.textContent = t == null ? '' : String(t);
+            return d.innerHTML;
+        }
+        async function initHomeMentors() {
+            var grid = document.getElementById('home-mentors-grid');
+            var sub = document.getElementById('home-hero-subtitle');
+            if (!grid) return;
+            var token = localStorage.getItem(TOKEN_KEY);
+            if (token) {
+                var meRes = await fetch(API + '/users/me', {
+                    headers: { Authorization: 'Bearer ' + token },
+                });
+                if (meRes.ok) {
+                    var me = await meRes.json();
+                    var w = document.querySelector('.time-wallet');
+                    if (w && typeof me.credit === 'number') {
+                        w.innerHTML = '<i class="fas fa-wallet"></i> Time Wallet: ' + me.credit + 'h';
+                    }
+                    if (sub) {
+                        sub.textContent =
+                            'Bon retour, ' +
+                            (me.first_name || 'membre') +
+                            '. Voici des compétences proposées sur la plateforme — cliquez sur Message pour écrire au membre (@' +
+                            (me.handle || '') +
+                            ' est votre pseudo public).';
+                    }
+                }
+            } else if (sub) {
+                sub.textContent =
+                    'Parcourez les compétences publiées par les membres. Connectez-vous pour envoyer des messages.';
+            }
+            var skRes = await fetch(API + '/skills?limit=24');
+            if (!skRes.ok) {
+                grid.innerHTML =
+                    '<p style="grid-column:1/-1;color:#64748b;">Impossible de charger la liste des compétences (API éteinte ?).</p>';
+                return;
+            }
+            var data = await skRes.json();
+            var items = data.items || [];
+            grid.innerHTML = '';
+            if (!items.length) {
+                grid.innerHTML =
+                    '<p style="grid-column:1/-1;color:#64748b;">Aucune compétence publiée pour le moment.</p>';
+                return;
+            }
+            items.forEach(function (item) {
+                var name =
+                    ((item.teacher_first_name || '') +
+                        ' ' +
+                        (item.teacher_last_name || '')).trim() || 'Membre';
+                var handle = item.teacher_handle || '';
+                var card = document.createElement('div');
+                card.className = 'mentor-card';
+                var msgHref =
+                    'messages.html?peer=' +
+                    encodeURIComponent(item.teacher_id) +
+                    '&skill=' +
+                    encodeURIComponent(item.id);
+                var profileHref =
+                    'member.html?id=' + encodeURIComponent(item.teacher_id);
+                card.innerHTML =
+                    '<div class="card-header"><div class="mentor-info"><h3>' +
+                    escapeHtml(name) +
+                    '</h3><span class="match-score">@' +
+                    escapeHtml(handle) +
+                    '</span></div></div><div class="card-body"><h4>ENSEIGNE</h4><div class="tags-group"><span class="tag-teach">' +
+                    escapeHtml(item.skill_name) +
+                    '</span></div></div><div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;">' +
+                    '<a class="btn-action secondary-action" style="display:inline-block;text-align:center;text-decoration:none;" href="' +
+                    profileHref +
+                    '">Profil</a><a class="btn-action primary-action" style="display:inline-block;text-align:center;text-decoration:none;" href="' +
+                    msgHref +
+                    '">Message</a></div>';
+                grid.appendChild(card);
+            });
+        }
+        document.addEventListener('DOMContentLoaded', initHomeMentors);
+    })();
+    </script>
 </body>
 </html>

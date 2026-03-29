@@ -5,42 +5,12 @@ from email.message import EmailMessage
 from fpdf import FPDF
 from dotenv import load_dotenv
 
+from app.paths import get_upload_temp_dir
+
 load_dotenv()
 
 resend.api_key = os.getenv("RESEND_API_KEY")
 
-def generate_certificate_pdf(teacher_name: str, student_name: str, skill_name: str, duration: float, cert_id: str) -> str:
-    """
-    Generates a beautiful PDF certificate and saves it temporarily.
-    Returns the file path.
-    """
-    pdf = FPDF()
-    pdf.add_page()
-    
-    # Add a border
-    pdf.rect(5.0, 5.0, 200.0, 287.0)
-    
-    # Title
-    pdf.set_font("helvetica", "B", 24)
-    pdf.cell(0, 40, "Official SkillSwap Certificate", align="C", new_x="LMARGIN", new_y="NEXT")
-    
-    # Body
-    pdf.set_font("helvetica", "", 16)
-    pdf.multi_cell(0, 10, f"This certifies that\n\n**{teacher_name}**\n\nhas successfully taught a {duration}-hour session on\n\n**{skill_name}**\n\nto {student_name}.", align="C", new_x="LMARGIN", new_y="NEXT")
-    
-    # Footer with the secure ID (so the AI can read it later when they upload it!)
-    pdf.set_y(-50)
-    pdf.set_font("helvetica", "I", 10)
-    pdf.cell(0, 10, f"Secure Certificate ID: {cert_id}", align="C")
-    
-    # Save the file
-    os.makedirs("temp_uploads", exist_ok=True)
-    file_path = f"temp_uploads/{cert_id}.pdf"
-    pdf.output(file_path)
-    
-    return file_path
-
-
 
 def generate_certificate_pdf(teacher_name: str, student_name: str, skill_name: str, duration: float, cert_id: str) -> str:
     """
@@ -49,28 +19,33 @@ def generate_certificate_pdf(teacher_name: str, student_name: str, skill_name: s
     """
     pdf = FPDF()
     pdf.add_page()
-    
+
     # Add a border
     pdf.rect(5.0, 5.0, 200.0, 287.0)
-    
+
     # Title
     pdf.set_font("helvetica", "B", 24)
     pdf.cell(0, 40, "Official SkillSwap Certificate", align="C", new_x="LMARGIN", new_y="NEXT")
-    
+
     # Body
     pdf.set_font("helvetica", "", 16)
-    pdf.multi_cell(0, 10, f"This certifies that\n\n**{teacher_name}**\n\nhas successfully taught a {duration}-hour session on\n\n**{skill_name}**\n\nto {student_name}.", align="C", new_x="LMARGIN", new_y="NEXT")
-    
+    pdf.multi_cell(
+        0,
+        10,
+        f"This certifies that\n\n**{teacher_name}**\n\nhas successfully taught a {duration}-hour session on\n\n**{skill_name}**\n\nto {student_name}.",
+        align="C",
+        new_x="LMARGIN",
+        new_y="NEXT",
+    )
+
     # Footer with the secure ID (so the AI can read it later when they upload it!)
     pdf.set_y(-50)
     pdf.set_font("helvetica", "I", 10)
     pdf.cell(0, 10, f"Secure Certificate ID: {cert_id}", align="C")
-    
-    # Save the file
-    os.makedirs("temp_uploads", exist_ok=True)
-    file_path = f"temp_uploads/{cert_id}.pdf"
+
+    file_path = os.path.join(get_upload_temp_dir(), f"{cert_id}.pdf")
     pdf.output(file_path)
-    
+
     return file_path
 
 

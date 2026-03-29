@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.deps import get_current_user
 from app.models import Skill, ExternalCertificate, User
+from app.paths import get_upload_temp_dir
 from app.services.ai_vision import analyze_external_certificate
 from app.services.ai_embeddings import generate_embedding
 
@@ -15,8 +16,7 @@ router = APIRouter(
     tags=["Certificates"]
 )
 
-TEMP_DIR = "temp_uploads"
-os.makedirs(TEMP_DIR, exist_ok=True)
+TEMP_DIR = get_upload_temp_dir()
 
 
 # adding new skill by uploading certificate 

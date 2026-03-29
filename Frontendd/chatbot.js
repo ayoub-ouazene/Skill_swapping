@@ -1,118 +1,143 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const token = localStorage.getItem('skillswap_token');
+    const API =
+        (typeof window !== 'undefined' && window.SKILLSWAP_API_BASE) ||
+        'http://127.0.0.1:8000';
+    const HISTORY_KEY = 'skillswap_ai_match_history';
+    const MAX_STORED_TURNS = 40;
+
+    /** @type {{ role: 'user'|'assistant', content: string }[]} */
+    let matchHistory = [];
+
+    function loadHistory() {
+        try {
+            const raw = sessionStorage.getItem(HISTORY_KEY);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed)) {
+                    matchHistory = parsed.filter(
+                        (x) =>
+                            x &&
+                            (x.role === 'user' || x.role === 'assistant') &&
+                            typeof x.content === 'string'
+                    );
+                }
+            }
+        } catch (e) {
+            console.warn('match history load', e);
+            matchHistory = [];
+        }
+    }
+
+    function saveHistory() {
+        const slice = matchHistory.slice(-MAX_STORED_TURNS);
+        matchHistory = slice;
+        try {
+            sessionStorage.setItem(HISTORY_KEY, JSON.stringify(slice));
+        } catch (e) {
+            console.warn('match history save', e);
+        }
+    }
+
+    function renderMarkdown(md) {
+        if (!md || typeof md !== 'string') return '';
+        if (typeof marked === 'undefined' || typeof DOMPurify === 'undefined') {
+            const d = document.createElement('div');
+            d.textContent = md;
+            return d.innerHTML;
+        }
+        marked.setOptions({ gfm: true, breaks: true });
+        const raw = marked.parse(md);
+        return DOMPurify.sanitize(raw, {
+            ADD_ATTR: ['target', 'rel'],
+        });
+    }
+
+    loadHistory();
+
     const chatInput = document.getElementById('chatInput');
     const sendBtn = document.getElementById('sendBtn');
     const chatBody = document.getElementById('chatBody');
 
-    // Retrieve token
-    const token = localStorage.getItem('skillswap_token');
 
-    // Function to add a text message to the screen
     function appendMessage(role, text) {
         const msgDiv = document.createElement('div');
         msgDiv.className = `message ${role === 'user' ? 'user-msg' : 'agent-msg'}`;
-        
-        msgDiv.innerHTML = `
-            <div class="bubble">
-                ${text}
-            </div>
-        `;
-        
+
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble' + (role === 'agent' ? ' bubble-md' : '');
+
+        if (role === 'user') {
+            bubble.textContent = text;
+        } else {
+            bubble.innerHTML = renderMarkdown(text);
+            bubble.querySelectorAll('a[href^="http"]').forEach((a) => {
+                a.setAttribute('target', '_blank');
+                a.setAttribute('rel', 'noopener noreferrer');
+            });
+        }
+
+        msgDiv.appendChild(bubble);
         chatBody.appendChild(msgDiv);
-        chatBody.scrollTop = chatBody.scrollHeight; // Scroll to bottom
+
+        chatBody.scrollTop = chatBody.scrollHeight;
     }
 
-    // Function to generate the HTML for a teacher card & handle the Enroll click
-    function createTeacherCardHTML(teacher) {
-        const displayRating = teacher.rating ? teacher.rating : "New";
-        
-        const cardDiv = document.createElement('div');
-        cardDiv.className = "mentor-card"; 
-        cardDiv.style.flexDirection = "column"; 
-        
-        // We do NOT use onclick in the HTML anymore. We attach an event listener below.
-        cardDiv.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
-                <div>
-                    <h4 style="margin: 0 0 5px 0; color: #111; font-size: 16px;">
-                        👤 ${teacher.first_name} ${teacher.last_name}
-                    </h4>
-                    <span class="badge-expert">⭐ ${displayRating}</span>
-                </div>
-            </div>
-            
-            <p style="margin: 10px 0 0 0; font-size: 13px; color: #666;">
-                Expertise Match: <strong>${teacher.matched_skill}</strong>
-            </p>
-            
-            <div class="chat-actions" style="margin-top: 15px;">
-                <button class="btn btn-teal enroll-btn">
-                    Enroll Now
-                </button>
-            </div>
-        `;
-
-        // Grab the button we just created inside this specific card
-        const enrollBtn = cardDiv.querySelector('.enroll-btn');
-
-        // Attach the enrollment logic directly to this button
-        enrollBtn.addEventListener('click', async () => {
-            
-            // 1. Safety check: Did the backend provide a skill_id?
-            if (!teacher.skill_id) {
-                appendMessage('agent', "⚠️ Developer Error: The backend did not return a `skill_id` for this teacher. Please update your `/Search_skills` endpoint to include it.");
-                return;
-            }
-
-            // 2. UI Update: Show loading state
-            enrollBtn.innerText = "Enrolling...";
-            enrollBtn.disabled = true;
-
-            try {
-                // 3. Make the API Call
-                // IMPORTANT: Replace the URL if your router has a prefix (e.g., /sessions/enroll)
-                const response = await fetch('http://127.0.0.1:8000/enroll', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        teacher_id: teacher.teacher_id,
-                        skill_id: teacher.skill_id
-                    })
-                });
-
-                const data = await response.json();
-
-                // 4. Handle Success
-                if (response.ok) {
-                    enrollBtn.innerText = "✅ Enrolled";
-                    enrollBtn.style.backgroundColor = "#4caf50"; // Turn button green
-                    enrollBtn.style.color = "white";
-                    
-                    // Display success message directly in the chat!
-                    appendMessage('agent', `🎉 **Success!** ${data.message}`);
-                } 
-                // 5. Handle Errors (e.g., enrolling with yourself, teacher not found)
-                else {
-                    enrollBtn.innerText = "Enroll Now"; // Reset button
-                    enrollBtn.disabled = false;
-                    
-                    // Display the specific FastAPI HTTP Exception in the chat
-                    appendMessage('agent', `❌ **Could not enroll:** ${data.detail}`);
-                }
-            } catch (error) {
-                console.error("Enrollment Error:", error);
-                enrollBtn.innerText = "Enroll Now";
-                enrollBtn.disabled = false;
-                appendMessage('agent', "⚠️ Network error while trying to enroll. The server might be unreachable.");
-            }
+    if (matchHistory.length > 0 && chatBody) {
+        chatBody.innerHTML = '';
+        matchHistory.forEach((t) => {
+            appendMessage(t.role === 'user' ? 'user' : 'agent', t.content);
         });
-
-        return cardDiv;
     }
 
-    // Function to send search message to Backend
+    function formatMatchResults(data) {
+        let reply =
+            data.message ||
+            data.answer ||
+            data.response ||
+            '';
+
+        if (
+            data.response_type === 'MATCH_RESULTS' &&
+            Array.isArray(data.data) &&
+            data.data.length > 0
+        ) {
+            const blocks = data.data.map((u, i) => {
+                const handle =
+                    u.teacher_handle ||
+                    `${u.first_name || ''} ${u.last_name || ''}`.trim() ||
+                    'membre';
+                const name =
+                    `${u.first_name || ''} ${u.last_name || ''}`.trim() || 'Enseignant';
+                const skill = u.matched_skill || '—';
+                const tid = u.teacher_id || '';
+                const sid = u.skill_id || '';
+                const profileUrl = `member.html?id=${encodeURIComponent(tid)}`;
+                const msgUrl = `messages.html?peer=${encodeURIComponent(tid)}${
+                    sid ? `&skill=${encodeURIComponent(sid)}` : ''
+                }`;
+                const rating =
+                    typeof u.rating === 'number' && !Number.isNaN(u.rating)
+                        ? u.rating.toFixed(1)
+                        : '—';
+                return (
+                    `### ${i + 1}. @${handle}\n` +
+                    `**${name}** · note ${rating}\n\n` +
+                    `- **Compétence proposée :** *${skill}*\n` +
+                    `- [**Voir le profil public**](${profileUrl})\n` +
+                    `- [**Envoyer un message**](${msgUrl})\n`
+                );
+            });
+            const intro = reply
+                ? `${reply}\n\n---\n\n**Enseignants trouvés :**\n\n`
+                : '**Enseignants trouvés :**\n\n';
+            reply = intro + blocks.join('\n');
+        }
+
+        return reply || 'Réponse reçue.';
+    }
+
+
     async function sendMessage() {
         const message = chatInput.value.trim();
         if (!message) return;
@@ -120,52 +145,66 @@ document.addEventListener('DOMContentLoaded', () => {
         appendMessage('user', message);
         chatInput.value = '';
 
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+        if (token) {
+            headers.Authorization = `Bearer ${token}`;
+        }
+
         try {
-            const response = await fetch('http://127.0.0.1:8000/matching/Search_skills', {
+
+            const response = await fetch(`${API}/matching/Search_skills`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` 
-                },
-                body: JSON.stringify({ user_query: message }) 
+                headers,
+                body: JSON.stringify({
+                    user_query: message,
+                    history: matchHistory,
+                }),
+
             });
 
+            const raw = await response.text();
+            let data = null;
+            if (raw) {
+                try {
+                    data = JSON.parse(raw);
+                } catch (parseErr) {
+                    console.error('JSON invalide:', parseErr, raw.slice(0, 200));
+                    appendMessage(
+                        'agent',
+                        'Réponse du serveur illisible. Vérifiez les logs du backend (erreur 500 / proxy).'
+                    );
+                    return;
+                }
+            }
+
             if (response.ok) {
-                const data = await response.json();
 
-                if (data.message) {
-                    appendMessage('agent', data.message);
-                }
-                
-                if (data.response_type === "MATCH_RESULTS" && Array.isArray(data.data) && data.data.length > 0) {
-                    const cardsContainer = document.createElement('div');
-                    cardsContainer.style.display = 'flex';
-                    cardsContainer.style.flexDirection = 'column';
-                    cardsContainer.style.gap = '10px';
-                    cardsContainer.style.alignSelf = 'flex-start';
-                    cardsContainer.style.maxWidth = '85%';
-                    cardsContainer.style.marginTop = '-10px'; 
-                    
-                    data.data.forEach(teacher => {
-                        const card = createTeacherCardHTML(teacher);
-                        cardsContainer.appendChild(card);
-                    });
-
-                    chatBody.appendChild(cardsContainer);
-                    chatBody.scrollTop = chatBody.scrollHeight;
-                }
-                
+                const replyText = formatMatchResults(data || {});
+                appendMessage('agent', replyText);
+                matchHistory.push({ role: 'user', content: message });
+                matchHistory.push({ role: 'assistant', content: replyText });
+                saveHistory();
             } else {
-                const errorData = await response.json();
-                appendMessage('agent', `Oops! Error: ${errorData.detail || "Technical difficulty"}`);
+                let errText = 'Désolé, une erreur est survenue.';
+                if (data && typeof data.detail === 'string') errText = data.detail;
+                appendMessage('agent', errText);
             }
         } catch (error) {
-            console.error("Chat Error:", error);
-            appendMessage('agent', "A frontend error occurred or the server is unreachable. Check console.");
+            console.error('Erreur Chat:', error);
+            const hint =
+                error && error.message
+                    ? error.message
+                    : 'réseau ou CORS (API éteinte, mauvaise URL, etc.)';
+            appendMessage(
+                'agent',
+                `Impossible de joindre l'API : **${hint}**. Vérifiez que uvicorn tourne (port 8000).`
+            );
         }
     }
 
-    // Events
+
     sendBtn.addEventListener('click', sendMessage);
     chatInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
@@ -173,4 +212,16 @@ document.addEventListener('DOMContentLoaded', () => {
             sendMessage();
         }
     });
+
+    const walletEl = document.getElementById('chatbot-wallet');
+    if (walletEl && token) {
+        fetch(`${API}/users/me`, { headers: { Authorization: `Bearer ${token}` } })
+            .then((r) => (r.ok ? r.json() : null))
+            .then((me) => {
+                if (me && typeof me.credit === 'number') {
+                    walletEl.innerHTML = `<i class="fas fa-wallet"></i> Time Wallet: ${me.credit}h`;
+                }
+            })
+            .catch(() => {});
+    }
 });
