@@ -3,14 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Connexion</title>
+    <title>Learnest - Connexion</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
-<body class="signup-body"> <main class="login-container">
+<body class="signup-body"> 
+    
+    <main class="login-container">
         <header class="login-header">
-            <div class="back-arrow"><i class="fa-solid fa-arrow-left"></i></div>
+            <div class="back-arrow" onclick="window.history.back()" style="cursor: pointer;">
+                <i class="fa-solid fa-arrow-left"></i>
+            </div>
             <div class="profile-icon-wrapper">
                 <div class="main-circle">
                     <i class="fa-solid fa-user"></i>
@@ -22,20 +26,20 @@
 
         <form class="login-form">
             <div class="input-field-wrapper">
-                <label>Email Address</label>
+                <label for="email">Email Address</label>
                 <div class="input-with-icon">
-                    <input type="email" placeholder="name@gmail.com" required>
+                    <input type="email" id="email" placeholder="name@gmail.com" required>
                     <i class="fa-regular fa-envelope"></i>
                 </div>
             </div>
 
             <div class="input-field-wrapper">
                 <div class="label-row">
-                    <label>Password</label>
+                    <label for="password">Password</label>
                 </div>
                 <div class="input-with-icon">
-                    <input type="password" placeholder="........" required>
-                    <i class="fa-regular fa-eye-slash"></i>
+                    <input type="password" id="password" placeholder="........" required>
+                    <i class="fa-regular fa-eye-slash" id="togglePassword" style="cursor: pointer;"></i>
                 </div>
             </div>
 
@@ -43,23 +47,39 @@
                 Sign In <i class="fa-solid fa-arrow-right"></i>
             </button>
         </form>
+        
         <p class="login-redirect">
-           Dont have account? <a href="signup.html">Sign in</a>
+            Don't have an account? <a href="signup.html">Sign up</a>
         </p>
-
     </main>
+
 <script>
+    // --- 1. Password Visibility Toggle ---
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+
+    togglePassword.addEventListener('click', function () {
+        // Toggle the type attribute
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        // Toggle the icon class (eye vs eye-slash)
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+    });
+
+
+    // --- 2. Login Logic ---
     const loginForm = document.querySelector('.login-form');
 
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // Récupération des inputs (attention, vérifie bien que tes inputs ont ces types)
-        const email = document.querySelector('input[type="email"]').value;
-        const password = document.querySelector('input[type="password"]').value;
+        // Safe retrieval using IDs
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
 
         try {
-            // Appel à la route de login
+            // Call the login endpoint
             const response = await fetch('http://127.0.0.1:8000/auth/login', {
                 method: 'POST',
                 headers: {
@@ -74,18 +94,18 @@
             const data = await response.json();
 
             if (response.ok) {
-                
+                // Save the token EXACTLY as expected by the chatbot page
                 localStorage.setItem('skillswap_token', data.access_token);
                 
                 alert("Connexion réussie !");
-                
+                // Redirect to the main app dashboard
                 window.location.href = 'home.html'; 
             } else {
                 alert("Erreur : " + (data.detail || "Email ou mot de passe incorrect"));
             }
         } catch (error) {
             console.error("Erreur :", error);
-            alert("Impossible de contacter le serveur.");
+            alert("Impossible de contacter le serveur. Vérifiez que votre backend est en ligne.");
         }
     });
 </script> 

@@ -46,60 +46,69 @@
         </p>
 
     </main>
+
 <script>
     const signupForm = document.querySelector('.signup-form');
 
     signupForm.addEventListener('submit', async (e) => {
         e.preventDefault(); 
 
-       
         const email = document.getElementById('email').value;
         const firstName = document.getElementById('firstName').value;
         const lastName = document.getElementById('lastName').value;
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
 
-       
         if (password !== confirmPassword) {
             alert("Les mots de passe ne correspondent pas !");
             return;
         }
 
-        
-        const fullName = `${firstName} ${lastName}`;
-
         try {
-    const response = await fetch('http://127.0.0.1:8000/auth/register', { 
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            email: email,
-            password: password,
-            first_name: firstName, // <--- REQUIS PAR LE SERVEUR
-            last_name: lastName,   // <--- REQUIS PAR LE SERVEUR
-            full_name: `${firstName} ${lastName}`
-        })
-    });
+            const response = await fetch('http://127.0.0.1:8000/auth/register', { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: email,
+                    password: password,
+                    first_name: firstName,
+                    last_name: lastName,  
+                    full_name: `${firstName} ${lastName}`
+                })
+            });
 
-    const result = await response.json();
+            const result = await response.json();
 
-    if (response.ok) {
-        alert("Succès ! Compte créé pour " + firstName);
-        window.location.href = "login.html";
-    } else {
-        // Pour lire l'erreur proprement sans le code bizarre
-        let detailedError = "";
-        if (Array.isArray(result.detail)) {
-            detailedError = result.detail.map(d => `${d.loc[1]}: ${d.msg}`).join("\n");
-        } else {
-            detailedError = result.detail || "Erreur inconnue";
+            if (response.ok) {
+                // SCENARIO 1: The backend returns a token immediately upon registration
+                if (result.access_token) {
+                    // Store the token securely in the browser
+                    localStorage.setItem('skillswap_token', result.access_token);
+                    
+                    alert("Succès ! Compte créé et connecté pour " + firstName);
+                    // Redirect directly to the main app since we already have the token
+                    window.location.href = "home.html"; 
+                } 
+                // SCENARIO 2: The backend only creates the account, no token returned yet
+                else {
+                    alert("Succès ! Compte créé pour " + firstName + ". Veuillez vous connecter.");
+                    // Redirect to login page to get the token
+                    window.location.href = "login.html";
+                }
+            } else {
+                // Error handling
+                let detailedError = "";
+                if (Array.isArray(result.detail)) {
+                    detailedError = result.detail.map(d => `${d.loc[1]}: ${d.msg}`).join("\n");
+                } else {
+                    detailedError = result.detail || "Erreur inconnue";
+                }
+                alert("Erreur validation :\n" + detailedError);
+            }
+        } catch (error) {
+            console.error("Erreur réseau:", error);
+            alert("Le serveur ne répond pas. Vérifie qu'Ayoub a lancé uvicorn.");
         }
-        alert("Erreur validation :\n" + detailedError);
-    }
-} catch (error) {
-    console.error("Erreur réseau:", error);
-    alert("Le serveur ne répond pas. Vérifie qu'Ayoub a lancé uvicorn.");
-}
     });
 </script>
 </body>

@@ -114,6 +114,7 @@ def smart_chatbot(request: ChatRequest, db: Session = Depends(get_db)):
                     "email": teacher.email,
                     "rating": teacher.rating,
                     "matched_skill": skill.skill_name,
+                    "skill_id": skill.id 
                     # We can even add a "match_score" later if you want to calculate the raw distance!
                 })
 
