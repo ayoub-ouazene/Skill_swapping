@@ -16,6 +16,7 @@ from dotenv import load_dotenv
 from app.database import get_db
 from app.deps import get_current_user
 from app.models import Session, User, InternalCertificate, Skill
+from app.paths import get_upload_temp_dir
 from app.services.rewards import generate_certificate_pdf, send_certificate_email
 
 # Load environment variables
@@ -143,8 +144,7 @@ def finalize_session_and_issue_pdf(
 # 2. TEACHER ACTION: UPLOAD PDF & CLAIM MARKET CREDITS
 # =====================================================================
 
-TEMP_DIR = "temp_uploads"
-os.makedirs(TEMP_DIR, exist_ok=True)
+TEMP_DIR = get_upload_temp_dir()
 
 @router.post("/Claim_Credit")
 async def claim_credits_via_upload(
