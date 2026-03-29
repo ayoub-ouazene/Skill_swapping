@@ -9,32 +9,43 @@ The backend API for SkillSwap, a time-credit-based skill exchange platform. Buil
 
 ## 🛠️ Local Setup & Installation
 
-**1. Clone the repository and navigate to the backend folder**
+Create a venv at the **repo root**, activate it, then install backend deps from `backend/`:
 
-
-# On macOS/Linux
-python3 -m venv venv
-source venv/bin/activate
-
-# On Windows
+```bash
+# Windows
 python -m venv venv
 venv\Scripts\activate
+pip install -r backend/requirements.txt
+```
 
+```bash
+# macOS/Linux
+python3 -m venv venv
+source venv/bin/activate
+pip install -r backend/requirements.txt
+```
 
-pip install -r requirements.txt
+Put `.env` at the **repo root** (or ensure `DATABASE_URL` etc. are visible to the process). Example variables:
 
+- `DATABASE_URL` — Neon connection string  
+- `GEMINI_API_KEY`, `GROQ_API_KEY`, … as needed  
 
-# Database (Get this from your Neon Dashboard -> Connection Details)
-DATABASE_URL=postgresql://<user>:<password>@<ep-name>.neon.tech/skillswap?sslmode=require
+## Running the API
 
-# AI Integration
-GEMINI_API_KEY=your_google_gemini_api_key_here
-and other env variables
+The Python package is **`backend/app`**. You must either **change into `backend`** or set **`PYTHONPATH`** to include `backend`.
 
-# RUNNIG THE backend
-uvicorn app.main:app --reload**
+**Option A — from `backend` (recommended):**
 
-# API Documentation (Swagger UI)
+```bash
+cd backend
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
 
-Swagger UI (Interactive): http://127.0.0.1:8000/docs
+**Option B — from repo root (Windows):** with venv activated, run `.\run-api.ps1` or `run-api.bat`. They set `PYTHONPATH` to `backend` then start uvicorn.
+
+If you run `uvicorn app.main:app` from the repo root **without** `PYTHONPATH` or `cd backend`, you get `ModuleNotFoundError: No module named 'app'`.
+
+## API documentation (Swagger)
+
+http://127.0.0.1:8000/docs
 

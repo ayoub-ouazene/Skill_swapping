@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil membre — Learnest</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .member-hero {
+            background: linear-gradient(135deg, #f0fdfa 0%, #e0f2fe 100%);
+            border-radius: 20px;
+            padding: 32px;
+            margin-bottom: 24px;
+            border: 1px solid #e2e8f0;
+        }
+        .member-hero h1 { margin: 0 0 8px 0; font-size: 1.75rem; color: #0f172a; }
+        .member-handle { color: #64748b; font-size: 1rem; margin-bottom: 12px; }
+        .member-handle code {
+            background: #fff;
+            padding: 4px 10px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            font-size: 0.9rem;
+        }
+        .member-meta { display: flex; flex-wrap: wrap; gap: 16px; color: #475569; font-size: 0.95rem; margin-top: 12px; }
+        .member-bio {
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 24px;
+            line-height: 1.6;
+            color: #334155;
+        }
+        .member-skills h2 { font-size: 1.1rem; margin-bottom: 14px; color: #0f172a; }
+        .skill-pills { display: flex; flex-wrap: wrap; gap: 10px; }
+        .skill-pill {
+            background: #f1f5f9;
+            color: #0f172a;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border: 1px solid #e2e8f0;
+        }
+        .member-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        .btn-message {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 24px;
+            background: #0d827c;
+            color: #fff !important;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+        }
+        .btn-message:hover { background: #0a6d67; }
+        .btn-message:disabled { opacity: 0.6; cursor: not-allowed; }
+        .member-error { color: #b91c1c; padding: 24px; text-align: center; }
+        .member-loading { color: #64748b; padding: 48px; text-align: center; }
+        .member-enroll {
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px 22px;
+            border: 1px solid #e2e8f0;
+            margin-top: 8px;
+        }
+        .member-enroll h3 { font-size: 1rem; margin: 0 0 8px 0; color: #0f172a; }
+        .member-enroll p { color: #64748b; font-size: 0.92rem; line-height: 1.5; margin-bottom: 12px; }
+        .enroll-select {
+            width: 100%;
+            max-width: 360px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            font-size: 15px;
+            font-family: inherit;
+            margin-bottom: 12px;
+        }
+        .btn-enroll-session {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: #0f766e;
+            color: #fff !important;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .btn-enroll-session:hover { background: #0d9488; }
+        .btn-enroll-session:disabled { opacity: 0.6; cursor: not-allowed; }
+        .enroll-msg { margin-top: 10px; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <nav class="side-nav">
+                <a href="profile.html" class="nav-item"><i class="fas fa-calendar-alt"></i> profil</a>
+                <a href="home.html" class="nav-item"><i class="fas fa-home"></i> Home</a>
+                <a href="messages.html" class="nav-item"><i class="fas fa-comments"></i> Messages</a>
+                <a href="chatbot.html" class="nav-item"><i class="fas fa-bolt"></i> AI Match</a>
+                <a href="index.html" class="nav-item"><i class="fas fa-sign-out-alt"></i> Deconnexion</a>
+            </nav>
+        </aside>
+
+        <main class="main-content gradient-bg">
+            <header class="top-nav">
+                <div class="logo">Learnest</div>
+                <nav class="center-nav"></nav>
+                <div class="right-nav"></div>
+            </header>
+
+            <div class="container container-large" id="member-root">
+                <p class="member-loading" id="member-loading">Chargement du profil…</p>
+                <div id="member-content" hidden></div>
+                <p class="member-error" id="member-error" hidden></p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+(function () {
+    var API = 'http://127.0.0.1:8000';
+    var params = new URLSearchParams(window.location.search);
+    var id = params.get('id');
+    var handle = (params.get('handle') || '').replace(/^@/, '').trim();
+
+    function escapeHtml(t) {
+        var d = document.createElement('div');
+        d.textContent = t == null ? '' : String(t);
+        return d.innerHTML;
+    }
+
+    function showError(msg) {
+        var loading = document.getElementById('member-loading');
+        var err = document.getElementById('member-error');
+        var content = document.getElementById('member-content');
+        if (loading) loading.hidden = true;
+        if (content) content.hidden = true;
+        if (err) { err.textContent = msg; err.hidden = false; }
+    }
+
+    function renderProfile(p, opts) {
+        opts = opts || {};
+        var meId = opts.meId;
+        var token = opts.token;
+        var skillFromUrl = (params.get('skill') || '').trim();
+
+        var loading = document.getElementById('member-loading');
+        var err = document.getElementById('member-error');
+        var box = document.getElementById('member-content');
+        if (loading) loading.hidden = true;
+        if (err) err.hidden = true;
+        if (!box) return;
+
+        var name = escapeHtml((p.first_name || '') + ' ' + (p.last_name || '')).trim() || 'Membre';
+        var h = p.handle ? escapeHtml(p.handle) : '';
+        var bio = (p.bio || '').trim();
+        var rating = typeof p.rating === 'number' ? p.rating : parseFloat(p.rating) || 0;
+        var skills = p.skills || [];
+
+        var firstSkillId = skills.length ? skills[0].id : '';
+        var msgHref = 'messages.html?peer=' + encodeURIComponent(p.id) +
+            (firstSkillId ? '&skill=' + encodeURIComponent(firstSkillId) : '');
+
+        var skillsHtml = skills.map(function (s) {
+            return '<span class="skill-pill">' + escapeHtml(s.skill_name) + '</span>';
+        }).join('');
+
+        var canEnroll =
+            token &&
+            meId &&
+            String(p.id) !== String(meId) &&
+            skills.length > 0;
+
+        var enrollHtml = '';
+        if (canEnroll) {
+            var optionsHtml = skills
+                .map(function (s) {
+                    return (
+                        '<option value="' +
+                        String(s.id) +
+                        '">' +
+                        escapeHtml(s.skill_name) +
+                        '</option>'
+                    );
+                })
+                .join('');
+            enrollHtml =
+                '<div class="member-enroll">' +
+                '<h3>Démarrer une session</h3>' +
+                '<p>Choisis une compétence : une session « en cours » est créée. Une fois le cours terminé, finalise depuis ton profil (étudiant) pour envoyer le certificat PDF à l’enseignant.</p>' +
+                '<select class="enroll-select" id="enroll-skill-select">' +
+                optionsHtml +
+                '</select><br>' +
+                '<button type="button" class="btn-enroll-session" id="enroll-session-btn">S’inscrire à cette session</button>' +
+                '<p class="enroll-msg" id="enroll-msg" hidden></p>' +
+                '</div>';
+        }
+
+        box.innerHTML =
+            '<div class="member-hero">' +
+            '<h1>' + name + '</h1>' +
+            (h ? '<p class="member-handle">Nom d\'utilisateur : <code>@' + h + '</code></p>' : '') +
+            '<div class="member-meta"><span><i class="fas fa-star" style="color:#eab308"></i> Note ' + rating.toFixed(1) + '</span></div>' +
+            '</div>' +
+            '<div class="member-bio"><h2 style="margin-top:0;font-size:1rem;">À propos</h2>' +
+            (bio ? escapeHtml(bio).replace(/\n/g, '<br>') : '<em style="color:#94a3b8;">Aucune bio.</em>') +
+            '</div>' +
+            '<div class="member-skills"><h2>Compétences enseignées</h2>' +
+            (skills.length ? '<div class="skill-pills">' + skillsHtml + '</div>' : '<p style="color:#64748b;">Aucune compétence publiée pour le moment.</p>') +
+            '</div>' +
+            enrollHtml +
+            '<div class="member-actions">' +
+            '<a class="btn-message" href="' + msgHref + '"><i class="fas fa-comments"></i> Envoyer un message</a>' +
+            '</div>';
+
+        if (canEnroll && skillFromUrl) {
+            var sel = document.getElementById('enroll-skill-select');
+            if (sel) {
+                for (var i = 0; i < sel.options.length; i++) {
+                    if (String(sel.options[i].value) === String(skillFromUrl)) {
+                        sel.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+        }
+
+        var enrollBtn = document.getElementById('enroll-session-btn');
+        if (enrollBtn && token) {
+            enrollBtn.addEventListener('click', async function () {
+                var sel = document.getElementById('enroll-skill-select');
+                var msgEl = document.getElementById('enroll-msg');
+                var skillId = sel && sel.value ? String(sel.value) : '';
+                if (!skillId) return;
+                enrollBtn.disabled = true;
+                if (msgEl) {
+                    msgEl.hidden = true;
+                }
+                try {
+                    var res = await fetch(API + '/sessions/enroll', {
+                        method: 'POST',
+                        headers: {
+                            Authorization: 'Bearer ' + token,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            teacher_id: p.id,
+                            skill_id: skillId,
+                        }),
+                    });
+                    var data = await res.json().catch(function () {
+                        return {};
+                    });
+                    if (msgEl) {
+                        msgEl.hidden = false;
+                        if (res.ok) {
+                            msgEl.style.color = '#0d827c';
+                            msgEl.textContent =
+                                data.message || 'Session créée. Va sur ton profil pour la finaliser une fois le cours terminé.';
+                        } else {
+                            msgEl.style.color = '#b91c1c';
+                            msgEl.textContent =
+                                typeof data.detail === 'string'
+                                    ? data.detail
+                                    : 'Impossible de créer la session.';
+                        }
+                    }
+                } catch (e) {
+                    if (msgEl) {
+                        msgEl.hidden = false;
+                        msgEl.style.color = '#b91c1c';
+                        msgEl.textContent = 'Erreur réseau.';
+                    }
+                } finally {
+                    enrollBtn.disabled = false;
+                }
+            });
+        }
+
+        box.hidden = false;
+    }
+
+    async function load() {
+        if (!id && !handle) {
+            showError('Profil introuvable : ajoutez ?id=… ou ?handle=… dans l’URL.');
+            return;
+        }
+        var token = localStorage.getItem('skillswap_token');
+        var meId = null;
+        if (token) {
+            try {
+                var mr = await fetch(API + '/users/me', {
+                    headers: { Authorization: 'Bearer ' + token },
+                });
+                if (mr.ok) {
+                    var me = await mr.json();
+                    meId = me.id;
+                }
+            } catch (e) {}
+        }
+        try {
+            var url = id
+                ? API + '/users/' + encodeURIComponent(id)
+                : API + '/users/by-handle/' + encodeURIComponent(handle);
+            var res = await fetch(url);
+            if (!res.ok) {
+                showError(res.status === 404 ? 'Ce membre n’existe pas.' : 'Impossible de charger le profil.');
+                return;
+            }
+            var p = await res.json();
+            renderProfile(p, { meId: meId, token: token });
+        } catch (e) {
+            showError('Erreur réseau ou API éteinte.');
+        }
+    }
+
+    load();
+})();
+    </script>
+</body>
+</html>

@@ -24,7 +24,7 @@
             <div class="input-field-wrapper">
                 <label>Email Address</label>
                 <div class="input-with-icon">
-                    <input type="email" placeholder="name@gmail.com" required>
+                    <input id="login-email" type="text" inputmode="email" autocomplete="username" placeholder="name@gmail.com ou alice.demo@skillswap.test" required>
                     <i class="fa-regular fa-envelope"></i>
                 </div>
             </div>
@@ -34,7 +34,7 @@
                     <label>Password</label>
                 </div>
                 <div class="input-with-icon">
-                    <input type="password" placeholder="........" required>
+                    <input id="login-password" type="password" autocomplete="current-password" placeholder="........" required>
                     <i class="fa-regular fa-eye-slash"></i>
                 </div>
             </div>
@@ -55,8 +55,8 @@
         e.preventDefault();
 
         // Récupération des inputs (attention, vérifie bien que tes inputs ont ces types)
-        const email = document.querySelector('input[type="email"]').value;
-        const password = document.querySelector('input[type="password"]').value;
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
 
         try {
             // Appel à la route de login
@@ -71,7 +71,10 @@
                 })
             });
 
-            const data = await response.json();
+            let data = {};
+            try {
+                data = await response.json();
+            } catch (_) {}
 
             if (response.ok) {
                 
@@ -81,7 +84,13 @@
                 
                 window.location.href = 'home.html'; 
             } else {
-                alert("Erreur : " + (data.detail || "Email ou mot de passe incorrect"));
+                let msg = "Email ou mot de passe incorrect";
+                if (Array.isArray(data.detail)) {
+                    msg = data.detail.map(function (d) { return d.msg || JSON.stringify(d); }).join(" ");
+                } else if (typeof data.detail === "string") {
+                    msg = data.detail;
+                }
+                alert("Erreur : " + msg);
             }
         } catch (error) {
             console.error("Erreur :", error);
